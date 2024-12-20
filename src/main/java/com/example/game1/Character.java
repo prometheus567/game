@@ -7,61 +7,117 @@ import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 public class Character {
-    private ImageView sprite;
-    private double speedX; // Tốc độ di chuyển theo chiều ngang
-    private double speedY; // Tốc độ di chuyển theo chiều dọc
-    private double xPosition; // Vị trí x của nhân vật
-    private double yPosition; // Vị trí y của nhân vật
+    private ImageView sprite; // Hiển thị nhân vật
+    private double speedX; // Tốc độ ngang
+    private double speedY; // Tốc độ dọc
+    private double xPosition; // Vị trí x
+    private double yPosition; // Vị trí y
 
-    // Constructor của lớp Character
-    public Character(String[] walkFramesPaths, double speedX, double speedY) {
+    private boolean onGround = true; // Kiểm tra nhân vật có đang đứng trên đất
+    private double gravity = 0.4; // Lực kéo trọng lực
+    private double jumpForce = -12; // Lực nhảy
+
+    private Timeline moveTimeline; // Timeline để cập nhật di chuyển
+    private Timeline walkTimeline; // Timeline hoạt ảnh đi bộ
+    private Timeline jumpTimeline; // Timeline hoạt ảnh nhảy
+
+    // Constructor
+    public Character(String[] walkFramesPaths, String[] jumpFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
-        this.sprite.setFitWidth(50); // Kích thước của sprite (nếu cần)
-        this.sprite.setFitHeight(50); // Kích thước của sprite (nếu cần)
-        this.xPosition = 0; // Vị trí bắt đầu của nhân vật
-        this.yPosition = 0; // Vị trí y bắt đầu
-        this.speedX = speedX; // Tốc độ di chuyển theo chiều ngang
-        this.speedY = speedY; // Tốc độ di chuyển theo chiều dọc
+        this.sprite.setFitWidth(50); // Kích thước nhân vật
+        this.sprite.setFitHeight(50);
 
-        // Khởi tạo mảng walkFrames từ các đường dẫn đã truyền vào
+        this.xPosition = initialX; // Vị trí ban đầu
+        this.yPosition = initialY;
+
+        this.speedX = 0;
+        this.speedY = 0;
+
+        // Tạo hoạt ảnh đi bộ
         Image[] walkFrames = new Image[walkFramesPaths.length];
         for (int i = 0; i < walkFramesPaths.length; i++) {
-            // Sử dụng getClass().getResource() để lấy đường dẫn chính xác tới tài nguyên
             walkFrames[i] = new Image(getClass().getResource(walkFramesPaths[i]).toExternalForm());
         }
 
-        // Tạo animation với Timeline
-        Timeline walkAnimation = new Timeline();
-        walkAnimation.setCycleCount(Timeline.INDEFINITE); // Lặp lại vô hạn
-
-        // Thêm các KeyFrame vào Timeline để thay đổi hình ảnh
+        walkTimeline = new Timeline();
+        walkTimeline.setCycleCount(Timeline.INDEFINITE);
         for (int i = 0; i < walkFrames.length; i++) {
-            final int index = i; // Cần final để sử dụng trong biểu thức lambda
-            walkAnimation.getKeyFrames().add(new KeyFrame(
-                    Duration.seconds(0.1 * (i + 1)), // Thời gian cho mỗi frame (điều chỉnh tốc độ frame rate)
-                    event -> sprite.setImage(walkFrames[index]) // Thay đổi hình ảnh
+            final int index = i;
+            walkTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(0.1 * i),
+                    event -> sprite.setImage(walkFrames[index])
             ));
         }
 
-        // Thêm KeyFrame để di chuyển nhân vật
-        walkAnimation.getKeyFrames().add(new KeyFrame(
-                Duration.seconds(0.1), // Di chuyển mỗi 0.1 giây
-                event -> moveCharacter() // Di chuyển nhân vật
+        // Tạo hoạt ảnh nhảy
+        Image[] jumpFrames = new Image[jumpFramesPaths.length];
+        for (int i = 0; i < jumpFramesPaths.length; i++) {
+            jumpFrames[i] = new Image(getClass().getResource(jumpFramesPaths[i]).toExternalForm());
+        }
+
+        jumpTimeline = new Timeline();
+        jumpTimeline.setCycleCount(1); // Chỉ phát 1 lần
+        for (int i = 0; i < jumpFrames.length; i++) {
+            final int index = i;
+            jumpTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(0.1 * i),
+                    event -> sprite.setImage(jumpFrames[index])
+            ));
+        }
+
+        // Timeline cập nhật di chuyển
+        moveTimeline = new Timeline(new KeyFrame(
+                Duration.seconds(0.016), // 60 FPS
+                event -> moveCharacter()
         ));
-
-        // Bắt đầu animation
-        walkAnimation.play();
+        moveTimeline.setCycleCount(Timeline.INDEFINITE);
+        moveTimeline.play();
     }
 
-    // Hàm di chuyển nhân vật
     private void moveCharacter() {
-        xPosition += speedX; // Cập nhật vị trí x của nhân vật theo tốc độ
-        yPosition += speedY; // Cập nhật vị trí y của nhân vật theo tốc độ
-        sprite.setX(xPosition); // Cập nhật vị trí của ImageView trên màn hình
-        sprite.setY(yPosition); // Cập nhật vị trí y của ImageView trên màn hình
+        xPosition += speedX;
+
+        if (!onGround) {
+            speedY += gravity;
+        }
+        yPosition += speedY;
+
+        if (yPosition >= 500) { // Vị trí mặt đất
+            yPosition = 500;
+            onGround = true;
+            speedY = 0;
+            walkTimeline.play(); // Quay lại hoạt ảnh đi bộ sau khi nhảy
+        }
+
+        sprite.setTranslateX(xPosition);
+        sprite.setTranslateY(yPosition);
     }
 
-    // Hàm trả về sprite để thêm vào scene
+    public void jump() {
+        if (onGround) {
+            speedY = jumpForce;
+            onGround = false;
+
+            walkTimeline.stop(); // Tạm dừng hoạt ảnh đi bộ
+            jumpTimeline.playFromStart(); // Chạy hoạt ảnh nhảy
+        }
+    }
+
+    public void setSpeedX(double speedX) {
+        this.speedX = speedX;
+
+        if (speedX != 0) {
+            if (walkTimeline.getStatus() != Timeline.Status.RUNNING && onGround) {
+                walkTimeline.play();
+            }
+
+            // Lật nhân vật nếu đi trái
+            sprite.setScaleX(speedX > 0 ? 1 : -1);
+        } else {
+            walkTimeline.stop(); // Dừng hoạt ảnh khi không di chuyển
+        }
+    }
+
     public ImageView getSprite() {
         return sprite;
     }
