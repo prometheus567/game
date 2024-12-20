@@ -2,6 +2,7 @@ package com.example.game1;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
@@ -14,15 +15,26 @@ public class Character {
     private double yPosition; // Vị trí y
 
     private boolean onGround = true; // Kiểm tra nhân vật có đang đứng trên đất
-    private double gravity = 0.4; // Lực kéo trọng lực
-    private double jumpForce = -12; // Lực nhảy
+    private double gravity = 0.5; // Lực kéo trọng lực
+    private double jumpForce = -10; // Lực nhảy
 
     private Timeline moveTimeline; // Timeline để cập nhật di chuyển
     private Timeline walkTimeline; // Timeline hoạt ảnh đi bộ
     private Timeline jumpTimeline; // Timeline hoạt ảnh nhảy
 
+    private int jumpCount = 0; // Số lần nhảy hiện tại
+    private final int maxJumpCount = 2; // Giới hạn số lần nhảy (double jump)
+    private int frameIndex = 0; // Theo dõi frame hiện tại của hoạt ảnh nhảy
+    private Image[] jumpFrames;
+
+    private Image[] idleFrames; // Frame cho trạng thái idle
+    private Timeline idleTimeline; // Timeline cho hoạt ảnh idle
+
+    private Image[] runFrames;  // Frame cho hoạt ảnh chạy
+    private Timeline runTimeLine; // Timeline cho hoạt ảnh chạy
+
     // Constructor
-    public Character(String[] walkFramesPaths, String[] jumpFramesPaths, double initialX, double initialY) {
+    public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths, String[] runFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
         this.sprite.setFitWidth(50); // Kích thước nhân vật
         this.sprite.setFitHeight(50);
@@ -33,8 +45,25 @@ public class Character {
         this.speedX = 0;
         this.speedY = 0;
 
+        // Tạo hoạt ảnh chạy
+        this.runFrames = new Image[runFramesPaths.length]; //Khởi tạo mảng runFrames
+        for (int i = 0; i < runFramesPaths.length;i++){
+            runFrames[i] = new Image(getClass().getResource(runFramesPaths[i]).toExternalForm());
+        }
+
+        runTimeLine = new Timeline();
+        runTimeLine.setCycleCount(Timeline.INDEFINITE);
+
+        for (int i = 0; i < runFrames.length; i++){
+            final int index = i;
+            runTimeLine.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(0.1*i),
+                    event -> sprite.setImage(runFrames[index])
+            ));;
+        }
+
         // Tạo hoạt ảnh đi bộ
-        Image[] walkFrames = new Image[walkFramesPaths.length];
+        Image[] walkFrames = new Image[walkFramesPaths.length]; //Khởi tạo mảng walkFrames
         for (int i = 0; i < walkFramesPaths.length; i++) {
             walkFrames[i] = new Image(getClass().getResource(walkFramesPaths[i]).toExternalForm());
         }
@@ -49,10 +78,28 @@ public class Character {
             ));
         }
 
+        // Tạo hoạt ảnh idle
+        this.idleFrames = new Image[idleFramesPaths.length]; // Khởi tạo mảng idleFrames
+        for (int i = 0; i < idleFramesPaths.length; i++) {
+            this.idleFrames[i] = new Image(getClass().getResource(idleFramesPaths[i]).toExternalForm());
+        }
+
+        idleTimeline = new Timeline();
+        idleTimeline.setCycleCount(Timeline.INDEFINITE); // Lặp lại vô hạn
+        for (int i = 0; i < idleFrames.length; i++) {
+            final int index = i;
+            idleTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(0.2 * i), // Điều chỉnh tốc độ frame idle
+                    event -> sprite.setImage(idleFrames[index])
+            ));
+        }
+
+
+
         // Tạo hoạt ảnh nhảy
-        Image[] jumpFrames = new Image[jumpFramesPaths.length];
+        this.jumpFrames = new Image[jumpFramesPaths.length]; // Sử dụng biến toàn cục
         for (int i = 0; i < jumpFramesPaths.length; i++) {
-            jumpFrames[i] = new Image(getClass().getResource(jumpFramesPaths[i]).toExternalForm());
+            this.jumpFrames[i] = new Image(getClass().getResource(jumpFramesPaths[i]).toExternalForm());
         }
 
         jumpTimeline = new Timeline();
@@ -78,7 +125,10 @@ public class Character {
         xPosition += speedX;
 
         if (!onGround) {
-            speedY += gravity;
+            speedY += gravity; // Áp dụng trọng lực khi không đứng trên đất
+            walkTimeline.stop();
+            runTimeLine.stop();
+            idleTimeline.stop();
         }
         yPosition += speedY;
 
@@ -86,7 +136,20 @@ public class Character {
             yPosition = 500;
             onGround = true;
             speedY = 0;
-            walkTimeline.play(); // Quay lại hoạt ảnh đi bộ sau khi nhảy
+            jumpCount = 0;
+
+            // Reset hoạt ảnh nhảy
+            jumpTimeline.stop();
+            frameIndex = 0;
+
+            // Quay lại trạng thái idle, đi bộ, hoặc chạy
+            if (speedX == 0) {
+                idleTimeline.play();
+            } else if (Math.abs(speedX) > 3) { // Nếu đang chạy
+                runTimeLine.play();
+            } else { // Nếu đi bộ
+                walkTimeline.play();
+            }
         }
 
         sprite.setTranslateX(xPosition);
@@ -94,12 +157,29 @@ public class Character {
     }
 
     public void jump() {
-        if (onGround) {
-            speedY = jumpForce;
-            onGround = false;
+        if (jumpCount < maxJumpCount) { // Kiểm tra số lần nhảy
+            speedY = jumpForce; // Thực hiện nhảy
+            onGround = false; // Không còn trên đất
+            jumpCount++; // Tăng số lần nhảy
 
             walkTimeline.stop(); // Tạm dừng hoạt ảnh đi bộ
-            jumpTimeline.playFromStart(); // Chạy hoạt ảnh nhảy
+
+            // Cập nhật hoạt ảnh nhảy
+            jumpTimeline.stop(); // Dừng hoạt ảnh trước đó
+            jumpTimeline = new Timeline(); // Tạo lại Timeline nhảy
+            for (int i = frameIndex; i < jumpFrames.length; i++) { // Tiếp tục từ frame hiện tại
+                final int index = i;
+                jumpTimeline.getKeyFrames().add(new KeyFrame(
+                        Duration.seconds(0.1 * (i - frameIndex)), // Tính từ frame hiện tại
+                        event -> {
+                            sprite.setImage(jumpFrames[index]);
+                            frameIndex = index + 1; // Cập nhật frame hiện tại
+                        }
+                ));
+            }
+
+            jumpTimeline.setOnFinished(e -> frameIndex = 0); // Reset frameIndex khi hoạt ảnh kết thúc
+            jumpTimeline.playFromStart();
         }
     }
 
@@ -107,15 +187,32 @@ public class Character {
         this.speedX = speedX;
 
         if (speedX != 0) {
-            if (walkTimeline.getStatus() != Timeline.Status.RUNNING && onGround) {
-                walkTimeline.play();
+            // Nếu đang chạy
+            if (Math.abs(speedX) > 3) {
+                walkTimeline.stop();
+                idleTimeline.stop();
+                if (runTimeLine.getStatus() != Timeline.Status.RUNNING) {
+                    runTimeLine.play();
+                }
+            } else { // Nếu đi bộ
+                runTimeLine.stop();
+                idleTimeline.stop();
+                if (walkTimeline.getStatus() != Timeline.Status.RUNNING && onGround) {
+                    walkTimeline.play();
+                }
             }
 
             // Lật nhân vật nếu đi trái
             sprite.setScaleX(speedX > 0 ? 1 : -1);
-        } else {
-            walkTimeline.stop(); // Dừng hoạt ảnh khi không di chuyển
+        } else if (onGround) { // Đứng yên
+            walkTimeline.stop();
+            runTimeLine.stop();
+            idleTimeline.play();
         }
+    }
+
+    public double getSpeedX() {
+        return speedX;
     }
 
     public ImageView getSprite() {
