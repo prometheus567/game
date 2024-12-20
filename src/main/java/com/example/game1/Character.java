@@ -33,8 +33,14 @@ public class Character {
     private Image[] runFrames;  // Frame cho hoạt ảnh chạy
     private Timeline runTimeLine; // Timeline cho hoạt ảnh chạy
 
+    private int comboStep = 0; // Theo dõi trạng thái combo (1 -> 3)
+    private Timeline comboTimeline; // Quản lý hoạt ảnh combo
+    private Image[][] attackFrames; // Chứa các frames cho từng đòn đánh
+    private Timeline resetComboTimer;
+
     // Constructor
-    public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths, String[] runFramesPaths, double initialX, double initialY) {
+    public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
+                     String[] runFramesPaths, String[][] attackFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
         this.sprite.setFitWidth(50); // Kích thước nhân vật
         this.sprite.setFitHeight(50);
@@ -44,6 +50,34 @@ public class Character {
 
         this.speedX = 0;
         this.speedY = 0;
+
+        // Khởi tạo attackFrames
+        attackFrames = new Image[3][];
+        for (int i = 0; i < attackFramesPaths.length; i++) {
+            attackFrames[i] = new Image[attackFramesPaths[i].length];
+            for (int j = 0; j < attackFramesPaths[i].length; j++) {
+                attackFrames[i][j] = new Image(getClass().getResource(attackFramesPaths[i][j]).toExternalForm());
+            }
+        }
+
+        comboTimeline = new Timeline();
+        comboTimeline.setCycleCount(1);
+
+        for (int i = 0; i < attackFrames.length; i++) { // Hàng: Đòn tấn công
+            for (int j = 0; j < attackFrames[i].length; j++) { // Cột: Các frame của đòn
+                final int attackIndex = i; // Lấy đòn tấn công
+                final int frameIndex = j; // Lấy frame trong đòn
+                comboTimeline.getKeyFrames().add(new KeyFrame(
+                        Duration.seconds(0.01 * (frameIndex + attackIndex * 10)), // Tính thời gian cho mỗi frame
+                        event -> sprite.setImage(attackFrames[attackIndex][frameIndex]) // Hiển thị frame tương ứng
+                ));
+            }
+        }
+
+        // Khi combo kết thúc
+        comboTimeline.setOnFinished(event -> {
+            comboStep = 0; // Reset combo
+        });
 
         // Tạo hoạt ảnh chạy
         this.runFrames = new Image[runFramesPaths.length]; //Khởi tạo mảng runFrames
@@ -218,4 +252,64 @@ public class Character {
     public ImageView getSprite() {
         return sprite;
     }
+
+    public void resetComboAfterDelay() {
+        if (resetComboTimer != null) {
+            resetComboTimer.stop();
+        }
+
+        resetComboTimer = new Timeline(new KeyFrame(
+                Duration.seconds(1.5), // Thời gian chờ để reset combo (1.5 giây)
+                event -> comboStep = 0 // Reset combo
+        ));
+        resetComboTimer.play();
+    }
+
+    private void playAttackAnimation(int comboIndex) {
+        // Tăng kích thước sprite cho animation attack
+        sprite.setFitWidth(90); // Kích thước lớn hơn cho tấn công
+        sprite.setFitHeight(90);
+
+        // Tạo timeline cho attack animation
+        comboTimeline = createTimeline(attackFrames[comboIndex], 0.1);
+        comboTimeline.setCycleCount(1);
+
+        // Trả kích thước về gốc sau khi animation kết thúc
+        comboTimeline.setOnFinished(event -> {
+            sprite.setFitWidth(50); // Kích thước gốc
+            sprite.setFitHeight(50);
+            comboStep = 0; // Reset combo step
+        });
+
+        comboTimeline.play();
+    }
+
+    private Timeline createTimeline(Image[] frames, double frameDuration) {
+        Timeline timeline = new Timeline();
+        for (int i = 0; i < frames.length; i++) {
+            final int index = i; // Cần biến final để dùng trong lambda
+            timeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(frameDuration * i),
+                    event -> sprite.setImage(frames[index]) // Đặt frame hiện tại cho sprite
+            ));
+        }
+        return timeline;
+    }
+
+    public void attack() {
+        if (comboTimeline != null && comboTimeline.getStatus() == Timeline.Status.RUNNING) {
+            return; // Nếu đang đánh, không nhận thêm input
+        }
+
+        comboStep++; // Tăng bước combo
+        if (comboStep > 3) { // Reset về đòn đầu sau khi hết combo
+            comboStep = 1;
+        }
+
+        // Tạo hoạt ảnh cho đòn hiện tại
+        playAttackAnimation(comboStep - 1); // Kích hoạt tấn công với combo index
+    }
+
+
+
 }
