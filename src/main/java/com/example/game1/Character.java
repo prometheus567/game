@@ -42,8 +42,8 @@ public class Character {
     public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
                      String[] runFramesPaths, String[][] attackFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
-        this.sprite.setFitWidth(50); // Kích thước nhân vật
-        this.sprite.setFitHeight(50);
+        this.sprite.setFitWidth(100); // Kích thước nhân vật
+        this.sprite.setFitHeight(100);
 
         this.xPosition = initialX; // Vị trí ban đầu
         this.yPosition = initialY;
@@ -266,18 +266,12 @@ public class Character {
     }
 
     private void playAttackAnimation(int comboIndex) {
-        // Tăng kích thước sprite cho animation attack
-        sprite.setFitWidth(90); // Kích thước lớn hơn cho tấn công
-        sprite.setFitHeight(90);
-
         // Tạo timeline cho attack animation
         comboTimeline = createTimeline(attackFrames[comboIndex], 0.1);
         comboTimeline.setCycleCount(1);
 
-        // Trả kích thước về gốc sau khi animation kết thúc
+        // Khi kết thúc animation, reset combo step
         comboTimeline.setOnFinished(event -> {
-            sprite.setFitWidth(50); // Kích thước gốc
-            sprite.setFitHeight(50);
             comboStep = 0; // Reset combo step
         });
 

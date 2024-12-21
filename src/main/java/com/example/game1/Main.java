@@ -41,7 +41,8 @@ public class Main extends Application {
                 "/character/jump/frame8.png",
                 "/character/jump/frame9.png",
                 "/character/jump/frame10.png",
-                "/character/jump/frame11.png"
+                "/character/jump/frame11.png",
+                "/character/jump/frame12.png"
         };
 
         String[] walkFramesPaths = {
