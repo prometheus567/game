@@ -36,8 +36,8 @@ public class Character {
     // Constructor
     public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths, String[] runFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
-        this.sprite.setFitWidth(50); // Kích thước nhân vật
-        this.sprite.setFitHeight(50);
+        this.sprite.setFitWidth(100); // Kích thước nhân vật
+        this.sprite.setFitHeight(100);
 
         this.xPosition = initialX; // Vị trí ban đầu
         this.yPosition = initialY;

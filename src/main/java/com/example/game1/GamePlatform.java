@@ -131,11 +131,11 @@ public class GamePlatform extends Application {
             jumping = true;
             onGround = false;
             playerVelocityY = jumpPower;
-        } else if (event.getCode() == KeyCode.D) {
+        } else if (event.getCode() == KeyCode.RIGHT) {
             isMovingRight = true;
-        } else if (event.getCode() == KeyCode.A) {
+        } else if (event.getCode() == KeyCode.LEFT) {
             isMovingLeft = true;
-        } else if (event.getCode() == KeyCode.F) {
+        } else if (event.getCode() == KeyCode.Z) {
             attackActive = true;
             attackStartTime = System.nanoTime();
             attackBox.setVisible(true);
