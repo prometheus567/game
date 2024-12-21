@@ -68,15 +68,29 @@ public class Character {
                 final int attackIndex = i; // Lấy đòn tấn công
                 final int frameIndex = j; // Lấy frame trong đòn
                 comboTimeline.getKeyFrames().add(new KeyFrame(
-                        Duration.seconds(0.01 * (frameIndex + attackIndex * 10)), // Tính thời gian cho mỗi frame
+                        Duration.seconds(0.1 * (frameIndex + attackIndex * 10)), // Tính thời gian cho mỗi frame
                         event -> sprite.setImage(attackFrames[attackIndex][frameIndex]) // Hiển thị frame tương ứng
                 ));
             }
         }
 
-        // Khi combo kết thúc
         comboTimeline.setOnFinished(event -> {
-            comboStep = 0; // Reset combo
+            // Đặt trạng thái delay để chờ người chơi thực hiện đòn kế tiếp
+            Timeline delayTimeline = new Timeline(new KeyFrame(
+                    Duration.seconds(0.5), // Delay 0.5 giây
+                    delayEvent -> {
+                        // Nếu không có hành động tiếp theo, chuyển về idle
+                        if (comboStep == 0) {
+                            idleTimeline.play();
+                        }
+                    }
+            ));
+
+            delayTimeline.setCycleCount(1); // Chỉ chạy một lần
+            delayTimeline.play();
+
+            // Đặt trạng thái chờ để reset combo sau khi delay kết thúc
+            resetComboAfterDelay();
         });
 
         // Tạo hoạt ảnh chạy
@@ -260,35 +274,38 @@ public class Character {
 
         resetComboTimer = new Timeline(new KeyFrame(
                 Duration.seconds(1.5), // Thời gian chờ để reset combo (1.5 giây)
-                event -> comboStep = 0 // Reset combo
+                event -> comboStep = 0 // Reset combo nếu không có hành động trong khoảng thời gian này
         ));
         resetComboTimer.play();
     }
 
     private void playAttackAnimation(int comboIndex) {
-        // Tạo timeline cho attack animation
-        comboTimeline = createTimeline(attackFrames[comboIndex], 0.1);
-        comboTimeline.setCycleCount(1);
+        comboTimeline = new Timeline();
 
-        // Khi kết thúc animation, reset combo step
-        comboTimeline.setOnFinished(event -> {
-            comboStep = 0; // Reset combo step
-        });
+        // Thêm delay ngắn trước frame đầu tiên (giúp chuyển tiếp mượt hơn)
+        comboTimeline.getKeyFrames().add(new KeyFrame(
+                Duration.seconds(0.15), // Delay nhỏ 0.1 giây
+                event -> sprite.setImage(attackFrames[comboIndex][0]) // Hiển thị frame đầu tiên
+        ));
 
-        comboTimeline.play();
-    }
 
-    private Timeline createTimeline(Image[] frames, double frameDuration) {
-        Timeline timeline = new Timeline();
-        for (int i = 0; i < frames.length; i++) {
-            final int index = i; // Cần biến final để dùng trong lambda
-            timeline.getKeyFrames().add(new KeyFrame(
-                    Duration.seconds(frameDuration * i),
-                    event -> sprite.setImage(frames[index]) // Đặt frame hiện tại cho sprite
+        // Thêm các frame của attack
+        for (int i = 1; i < attackFrames[comboIndex].length; i++) { // Bắt đầu từ frame 1
+            final int index = i;
+            comboTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(0.1 * i),
+                    event -> sprite.setImage(attackFrames[comboIndex][index])
             ));
         }
-        return timeline;
+
+        // Kết thúc combo
+        comboTimeline.setOnFinished(event -> {
+            resetComboAfterDelay();
+        });
+
+        comboTimeline.playFromStart();
     }
+
 
     public void attack() {
         if (comboTimeline != null && comboTimeline.getStatus() == Timeline.Status.RUNNING) {
@@ -301,7 +318,12 @@ public class Character {
         }
 
         // Tạo hoạt ảnh cho đòn hiện tại
-        playAttackAnimation(comboStep - 1); // Kích hoạt tấn công với combo index
+        playAttackAnimation(comboStep - 1);
+
+        // Nếu đang trong trạng thái delay, hủy delay và tiếp tục combo
+        if (resetComboTimer != null && resetComboTimer.getStatus() == Timeline.Status.RUNNING) {
+            resetComboTimer.stop();
+        }
     }
 
 
