@@ -139,7 +139,9 @@ public class Main extends Application {
         });
     }
 
+
     public static void main(String[] args) {
         launch(args); // Khởi động ứng dụng JavaFX
     }
+
 }
