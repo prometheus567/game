@@ -7,86 +7,99 @@ import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 public class Monster {
-    private ImageView sprite; // Sprite for monster
-    private double speedX; // Horizontal speed
-    private double speedY; // Vertical speed
-    private double xPosition; // Horizontal position
-    private double yPosition; // Vertical position
+    private ImageView sprite; // Sprite cho quái vật
+    private double speedX; // Tốc độ ngang
+    private double speedY; // Tốc độ dọc
+    private double xPosition; // Vị trí nằm ngang
+    private double yPosition; // Vị trí dọc
 
-    private boolean onGround = true; // Checks if monster is on the ground
-    private double gravity = 0.5; // Gravity
-    private double walkSpeed = 1; // Monster walking speed
+    private boolean onGround = true; // Kiểm tra xem quái vật có ở trên mặt đất không
+    private double gravity = 0.5; // Trọng lực
+    private double walkSpeed = 1; // Tốc độ đi bộ của quái vật
 
-    private Timeline moveTimeline; // Timeline for monster's movement
+    private Timeline moveTimeline; // Dòng thời gian di chuyển của quái vật
+    private Timeline backAndForthTimeline; // Dòng thời gian cho chuyển động qua lại của quái vật
 
-    // Constructor
+    // Người xây dựng
     public Monster(String[] walkFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
-        this.sprite.setFitWidth(100); // Set monster size
+        this.sprite.setFitWidth(100); // Đặt kích thước quái vật
         this.sprite.setFitHeight(100);
         this.xPosition = initialX;
         this.yPosition = initialY;
 
-        this.speedX = 0;
+        this.speedX = walkSpeed;
         this.speedY = 0;
 
-        // Load walk animation frames
+        // Tải khung hình hoạt hình đi bộ
         Image[] walkFrames = new Image[walkFramesPaths.length];
         for (int i = 0; i < walkFramesPaths.length; i++) {
             walkFrames[i] = new Image(getClass().getResource(walkFramesPaths[i]).toExternalForm());
         }
 
-        // Set up walk timeline
+        // Thiết lập dòng thời gian đi bộ
         moveTimeline = new Timeline();
         moveTimeline.setCycleCount(Timeline.INDEFINITE);
 
-        // Add keyframes for walk animation
+        // Thêm khung hình chính cho hoạt ảnh đi bộ
         for (int i = 0; i < walkFrames.length; i++) {
             final int index = i;
             moveTimeline.getKeyFrames().add(new KeyFrame(
-                    Duration.seconds(0.1 * i), // Timing for each frame
-                    event -> sprite.setImage(walkFrames[index]) // Set corresponding walk frame
+                    Duration.seconds(0.1 * i), // Thời gian cho mỗi khung hình
+                    event -> sprite.setImage(walkFrames[index]) // Đặt khung đi bộ tương ứng
             ));
         }
 
-        // Play walking animation and movement timeline
+        // Thiết lập mốc thời gian chuyển động qua lại
+        backAndForthTimeline = new Timeline();
+        backAndForthTimeline.setCycleCount(Timeline.INDEFINITE);
+        backAndForthTimeline.getKeyFrames().add(new KeyFrame(
+                Duration.seconds(2), // Thay đổi hướng mỗi 2 giây
+                event -> speedX = -speedX // Hướng ngược lại
+        ));
+
+        // Chơi hoạt hình đi bộ và dòng thời gian chuyển động
         moveTimeline.play();
+        backAndForthTimeline.play();
     }
 
     public void moveMonster() {
-        // Move monster along X
+        // Di chuyển quái vật dọc theo X
         xPosition += speedX;
 
         if (!onGround) {
-            speedY += gravity; // Apply gravity if not on the ground
+            speedY += gravity; // Áp dụng trọng lực nếu không ở trên mặt đất
         }
 
-        // Move monster along Y
+        // Di chuyển quái vật dọc theo Y
         yPosition += speedY;
 
-        if (yPosition >= 500) { // If the monster hits the ground
+        if (yPosition >= 500) { // Nếu quái vật đập xuống đất
             yPosition = 500;
             onGround = true;
             speedY = 0;
         }
 
-        // Set position for sprite
+        // Lật hình ảnh quái vật dựa trên hướng di chuyển
+        sprite.setScaleX(speedX > 0 ? 1 : -1);
+
+        // Đặt vị trí cho sprite
         sprite.setTranslateX(xPosition);
         sprite.setTranslateY(yPosition);
     }
 
-    // Set horizontal movement speed
+    // Đặt tốc độ di chuyển ngang
     public void setSpeedX(double speedX) {
         this.speedX = speedX;
     }
 
-    // Get sprite to add to scene
+    // Nhận sprite để thêm vào cảnh
     public ImageView getSprite() {
         return sprite;
     }
 
-    // Call moveMonster to actually move the monster in each game loop
+    // Gọi moveMonster để thực sự di chuyển quái vật trong mỗi vòng lặp trò chơi
     public void move() {
-        moveMonster();  // Move the monster
+        moveMonster();  // Di chuyển quái vật
     }
 }

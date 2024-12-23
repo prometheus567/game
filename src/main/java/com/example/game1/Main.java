@@ -103,14 +103,12 @@ public class Main extends javafx.application.Application {
 
         // Tạo các frame cho hoạt ảnh đi bộ của quái vật
         String[] monsterWalkFrames = {
-                "/monster/hl/hl1/Walk/Walk_1.png",
-                "/monster/hl/hl1/Walk/Walk_2.png",
-                "/monster/hl/hl1/Walk/Walk_3.png",
-                "/monster/hl/hl1/Walk/Walk_4.png",
-                "/monster/hl/hl1/Walk/Walk_5.png",
-                "/monster/hl/hl1/Walk/Walk_6.png",
-                "/monster/hl/hl1/Walk/Walk_7.png",
-                "/monster/hl/hl1/Walk/Walk_8.png"
+                "/Gotoku/Walk/sprite_0-ezgif.com-crop.png",
+                "/Gotoku/Walk/sprite_0-ezgif.com-crop.png",
+                "/Gotoku/Walk/sprite_2-ezgif.com-crop.png",
+                "/Gotoku/Walk/sprite_3-ezgif.com-crop.png",
+                "/Gotoku/Walk/sprite_4-ezgif.com-crop.png",
+                "/Gotoku/Walk/sprite_5-ezgif.com-crop.png",
         };
 
 // Tạo quái vật
