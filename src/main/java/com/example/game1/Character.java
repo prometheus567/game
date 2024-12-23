@@ -325,6 +325,15 @@ public class Character {
             resetComboTimer.stop();
         }
     }
+    // Getter for xPosition
+    public double getX() {
+        return xPosition;
+    }
+
+    // Getter for yPosition
+    public double getY() {
+        return yPosition;
+    }
 
 
 
