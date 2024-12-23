@@ -1,15 +1,25 @@
 package com.example.game1;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Main extends Application {
 
-    @Override
-    public void start(Stage primaryStage) {
-        // Đường dẫn đến các frame của nhân vật
+    public void start(Stage primaryStage) throws Exception {
+        // Load FXML và ép kiểu root thành Pane
+        Pane root = (Pane) FXMLLoader.load(getClass().getResource("/healthbar loca.fxml"));
+
+        // Tạo Scene từ FXML
+        Scene scene = new Scene(root, 800, 600);
+
+        // Tạo đối tượng Character
         String[] runFramesPaths = {
                 "/character/run/frame1.png",
                 "/character/run/frame2.png",
@@ -78,7 +88,6 @@ public class Main extends Application {
                 }
         };
 
-        // Tạo đối tượng Character
         Character character = new Character(
                 walkFramesPaths,
                 jumpFramesPaths,
@@ -89,32 +98,22 @@ public class Main extends Application {
                 500
         );
 
-        // Lấy sprite từ character
-        Pane root = new Pane();
+        // Thêm nhân vật vào root Pane
         root.getChildren().add(character.getSprite());
 
-        // Tạo scene và gán vào stage
-        Scene scene = new Scene(root, 800, 600); // Nền trắng mặc định
-        primaryStage.setTitle("2D Platformer");
+        // Thiết lập và hiển thị Stage
+        primaryStage.setTitle("Ryoma");
         primaryStage.setScene(scene);
         primaryStage.show();
 
         // Điều khiển nhân vật bằng bàn phím
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
-                case A: // Đi trái
-                    character.setSpeedX(-2);
-                    break;
-                case D: // Đi phải
-                    character.setSpeedX(2);
-                    break;
-                case SPACE: // Nhảy
-                    character.jump();
-                    break;
-                case J: // Tấn công (sử dụng combo)
-                    character.attack();
-                    break;
-                case SHIFT: // Chạy nhanh
+                case A -> character.setSpeedX(-2);
+                case D -> character.setSpeedX(2);
+                case SPACE -> character.jump();
+                case J -> character.attack();
+                case SHIFT -> {
                     if (event.isShiftDown()) {
                         if (character.getSpeedX() > 0) {
                             character.setSpeedX(5); // Chạy nhanh phải
@@ -122,26 +121,15 @@ public class Main extends Application {
                             character.setSpeedX(-5); // Chạy nhanh trái
                         }
                     }
-                    break;
+                }
             }
         });
 
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
-                case A:
-                case D:
-                    character.setSpeedX(0); // Dừng di chuyển khi thả phím
-                    break;
-                case SHIFT:
-                    character.setSpeedX(0); // Dừng chạy khi thả SHIFT
-                    break;
+                case A, D -> character.setSpeedX(0); // Dừng di chuyển khi thả phím
+                case SHIFT -> character.setSpeedX(0); // Dừng chạy khi thả SHIFT
             }
         });
     }
-
-
-    public static void main(String[] args) {
-        launch(args); // Khởi động ứng dụng JavaFX
-    }
-
 }
