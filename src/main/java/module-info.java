@@ -6,10 +6,6 @@ module com.example.game1 {
 
     opens com.example.game1 to javafx.fxml;
     exports com.example.game1;
-<<<<<<< HEAD
     exports com.example.game1.Login;
     opens com.example.game1.Login to javafx.fxml;
 }
-=======
-}
->>>>>>> 5ccab4a77d03f9a527e53bb24dab9aa3b4f15b8c
