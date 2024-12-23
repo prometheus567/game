@@ -1,14 +1,26 @@
 package com.example.game1;
 
-import javafx.application.Application;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
-public class Main extends Application {
+public class Main extends javafx.application.Application {
+
+    private Character character;
+    private Monster monster;
+    private Camera camera;
+    private Pane root;
 
     @Override
     public void start(Stage primaryStage) {
+        root = new Pane();
+
+
+
         // Đường dẫn đến các frame của nhân vật
         String[] runFramesPaths = {
                 "/character/run/frame1.png",
@@ -74,24 +86,45 @@ public class Main extends Application {
                 {
                         "/character/attack/frame11.png",
                         "/character/attack/frame12.png",
-                        "/character/attack/frame13.png"
+                        "/character/attack/frame13.png",
+
                 }
         };
 
         // Tạo đối tượng Character
-        Character character = new Character(
+        character = new Character(
                 walkFramesPaths,
                 jumpFramesPaths,
                 idleFramesPaths,
                 runFramesPaths,
                 attackFramesPaths,
-                100,
-                500
+                100, 500
         );
 
-        // Lấy sprite từ character
-        Pane root = new Pane();
+        // Tạo các frame cho hoạt ảnh đi bộ của quái vật
+        String[] monsterWalkFrames = {
+                "/monster/hl/hl1/Walk/Walk_1.png",
+                "/monster/hl/hl1/Walk/Walk_2.png",
+                "/monster/hl/hl1/Walk/Walk_3.png",
+                "/monster/hl/hl1/Walk/Walk_4.png",
+                "/monster/hl/hl1/Walk/Walk_5.png",
+                "/monster/hl/hl1/Walk/Walk_6.png",
+                "/monster/hl/hl1/Walk/Walk_7.png",
+                "/monster/hl/hl1/Walk/Walk_8.png"
+        };
+
+// Tạo quái vật
+        monster = new Monster(monsterWalkFrames, 300.0, 500.0);  // Dùng double cho vị trí
+
+
+        // Tạo bản đồ
+        var map = new Map(20, 20, root);
+
+        // Khởi tạo camera
+        camera = new Camera(800, 600, root);
+
         root.getChildren().add(character.getSprite());
+        root.getChildren().add(monster.getSprite());
 
         // Tạo scene và gán vào stage
         Scene scene = new Scene(root, 800, 600); // Nền trắng mặc định
@@ -137,6 +170,25 @@ public class Main extends Application {
                     break;
             }
         });
+
+        // Vòng lặp game
+        Timeline gameLoop = new Timeline(new KeyFrame(
+                Duration.seconds(0.016),  // 60 FPS
+                event -> updateGame()
+        ));
+        gameLoop.setCycleCount(Timeline.INDEFINITE);
+        gameLoop.play();
+    }
+
+    // Cập nhật game, di chuyển nhân vật, quái vật và cập nhật camera
+    private void updateGame() {
+        // Cập nhật camera theo vị trí nhân vật
+        camera.update(character.getX(), character.getY());
+
+        // Di chuyển quái vật
+        monster.move();
+
+        // Các logic khác của game có thể đặt ở đây
     }
 
     public static void main(String[] args) {

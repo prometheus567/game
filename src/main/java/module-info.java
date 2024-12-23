@@ -1,8 +1,8 @@
 module com.example.game1 {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.desktop;
-
+    requires java.sql;  // Bao gồm thư viện Java SQL nếu cần
+    requires java.desktop; // Thư viện Java Desktop
 
     opens com.example.game1 to javafx.fxml;
     exports com.example.game1;
