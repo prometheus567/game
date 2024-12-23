@@ -1,50 +1,84 @@
 package com.example.game1;
 
-import javafx.scene.shape.Rectangle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-public class Player extends Rectangle {
-    private double velocityX = 0;  // Vận tốc theo trục X
-    private double velocityY = 0;  // Vận tốc theo trục Y
-    private static final double GRAVITY = 0.5;  // Trọng lực
+public class Player {
+    private double speedX = 0;
+    private double speedY = 0;
+    private boolean isJumping = false;
+    private ImageView sprite;
 
-    public Player() {
-        super(40, 60);  // Kích thước của nhân vật
-        setStyle("-fx-fill: blue;");
-        setTranslateX(200);
-        setTranslateY(500);  // Vị trí ban đầu của nhân vật
+    private static final double GRAVITY = 0.5; // Gia tốc trọng lực
+    private static final double JUMP_STRENGTH = -12; // Lực nhảy
+
+    public Player(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
+                  String[] runFramesPaths, String[][] attackFramesPaths, double startX, double startY) {
+        // Tạo hình ảnh nhân vật ban đầu (Idle)
+        sprite = new ImageView(new Image("file:src/main/resources/character/idle/frame1.png"));
+        sprite.setTranslateX(startX); // Chỉnh lại từ setX
+        sprite.setTranslateY(startY); // Chỉnh lại từ setY
+    }
+
+    public ImageView getSprite() {
+        return sprite;
+    }
+
+    public double getTranslateX() {
+        return sprite.getTranslateX();
+    }
+
+    public double getTranslateY() {
+        return sprite.getTranslateY();
+    }
+
+    public void setTranslateX(double x) {
+        sprite.setTranslateX(x);
+    }
+
+    public void setTranslateY(double y) {
+        sprite.setTranslateY(y);
+    }
+
+    public void setSpeedX(double speed) {
+        this.speedX = speed;
     }
 
     public void move() {
-        setTranslateX(getTranslateX() + velocityX);  // Di chuyển nhân vật theo trục X
-        setTranslateY(getTranslateY() + velocityY);  // Di chuyển nhân vật theo trục Y
-    }
+        sprite.setTranslateX(sprite.getTranslateX() + speedX);
 
-    // Phương thức thiết lập vận tốc theo trục X
-    public void setVelocityX(double velocityX) {
-        this.velocityX = velocityX;
-    }
-
-    // Phương thức thiết lập vận tốc theo trục Y
-    public void setVelocityY(double velocityY) {
-        this.velocityY = velocityY;
-    }
-
-    // Phương thức áp dụng trọng lực
-    public void applyGravity() {
-        if (velocityY < 20) {
-            velocityY += GRAVITY;  // Nếu chưa đạt vận tốc rơi tối đa, tăng trọng lực
+        if (!isJumping) {
+            speedY += GRAVITY; // Tăng trọng lực nếu đang rơi
         }
+        sprite.setTranslateY(sprite.getTranslateY() + speedY);
     }
 
-    // Phương thức nhảy
     public void jump() {
-        if (velocityY == 0) {  // Nếu đang đứng trên nền tảng, cho phép nhảy
-            velocityY = -15;  // Tạo lực nhảy
+        if (!isJumping) {
+            speedY += GRAVITY;
         }
+        sprite.setTranslateY(sprite.getTranslateY() + speedY);
+
     }
 
-    // Kiểm tra nếu nhân vật đang chạm đất
-    public boolean isGrounded(Platform platform) {
-        return getBoundsInParent().intersects(platform.getBoundsInParent());
+    public void land() {
+        isJumping = false; // Nhân vật không rơi nữa
+        speedY = 0; // Dừng trọng lực
+        sprite.setImage(new Image("file:src/main/resources/character/idle/frame1.png")); // Trở lại hoạt ảnh idle
     }
+
+
+    public void setFalling(boolean isFalling) {
+        isJumping = isFalling;
+        if (!isFalling) {
+            land(); // Gọi logic hạ cánh tự động
+        }
+    }
+    public boolean checkCollision(Platform platform) {
+        return sprite.getBoundsInParent().intersects(platform.getBoundsInParent());
+    }
+
+
 }
+
+

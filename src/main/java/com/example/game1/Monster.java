@@ -1,30 +1,37 @@
 package com.example.game1;
 
-import javafx.scene.shape.Rectangle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-public class Monster extends Rectangle {
-    private double velocityX = 2; // Tốc độ di chuyển của quái vật
+public class Monster {
 
-    public Monster(double width, double height, double x, double y) {
-        super(width, height);  // Kích thước của quái vật
-        setStyle("-fx-fill: red;"); // Màu sắc của quái vật
-        setTranslateX(x);  // Vị trí ban đầu của quái vật
-        setTranslateY(y);
+    private ImageView sprite;
+    private double xPosition, yPosition, speedX;
+
+    public Monster(double x, double y) {
+        sprite = new ImageView(new Image(getClass().getResource("/monster.png").toExternalForm()));
+        sprite.setFitWidth(100);
+        sprite.setFitHeight(100);
+        xPosition = x;
+        yPosition = y;
+        speedX = 2;
     }
 
-    // Phương thức di chuyển quái vật (di chuyển qua trái hoặc phải)
     public void move() {
-        setTranslateX(getTranslateX() + velocityX);
-    }
-
-    // Phương thức kiểm tra va chạm với nhân vật
-    public boolean isCollidingWith(Player player) {
-        return getBoundsInParent().intersects(player.getBoundsInParent());
+        xPosition += speedX;
+        if (xPosition <= 0 || xPosition >= 800 - sprite.getFitWidth()) {
+            speedX *= -1;  // Reverse direction if reaches edge
+        }
+        sprite.setTranslateX(xPosition);
     }
 
     public void changeDirectionIfEdge(double maxWidth) {
-        if (getTranslateX() <= 0 || getTranslateX() >= maxWidth) {
-            velocityX = -velocityX;  // Đổi hướng nếu gặp bờ
+        if (xPosition <= 0 || xPosition >= maxWidth - sprite.getFitWidth()) {
+            speedX *= -1;
         }
+    }
+
+    public ImageView getSprite() {
+        return sprite;
     }
 }

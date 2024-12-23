@@ -1,15 +1,18 @@
 package com.example.game1;
 
+
 import javafx.animation.AnimationTimer;
 
-public class GameLoop extends AnimationTimer {
-    private Player player;
-    private Platform platform;
+// GameLoop để cập nhật trạng thái của game liên tục
+class GameLoop extends AnimationTimer {
+
+    private Character character;
     private Platform ground;
+    private Platform platform;
     private Monster monster;
 
-    public GameLoop(Player player, Platform platform, Platform ground, Monster monster) {
-        this.player = player;
+    public GameLoop(Character character, Platform platform, Platform ground, Monster monster) {
+        this.character = character;
         this.platform = platform;
         this.ground = ground;
         this.monster = monster;
@@ -17,35 +20,36 @@ public class GameLoop extends AnimationTimer {
 
     @Override
     public void handle(long now) {
-        player.move();  // Di chuyển nhân vật
+        // Cập nhật chuyển động của nhân vật
+        character.move();
 
-        // Kiểm tra va chạm với nền tảng giữa
-        if (platform.isCollidingWith(player)) {
-            player.setVelocityY(0);  // Dừng rơi khi va chạm
-            player.setTranslateY(platform.getTranslateY() - player.getHeight());  // Đặt nhân vật ngay trên nền tảng
+        // Kiểm tra va chạm với nền tảng đất
+        if (character.getSprite().getBoundsInParent().intersects(ground.getBoundsInParent())) {
+            if (character.getTranslateY() + character.getSprite().getFitHeight() >= ground.getTranslateY()) {
+                character.setTranslateY(ground.getTranslateY() - character.getSprite().getFitHeight());
+                character.land();
+            }
+        } else {
+            character.setFalling(true);
         }
 
-        // Kiểm tra va chạm với mặt đất
-        if (ground.isCollidingWith(player)) {
-            player.setVelocityY(0);  // Dừng rơi khi chạm đất
-            player.setTranslateY(ground.getTranslateY() - player.getHeight());  // Đặt nhân vật trên mặt đất
+        // Kiểm tra va chạm với platform
+        if (character.getSprite().getBoundsInParent().intersects(platform.getBoundsInParent())) {
+            if (character.getTranslateY() + character.getSprite().getFitHeight() <= platform.getTranslateY() + platform.getHeight()) {
+                character.setTranslateY(platform.getTranslateY() - character.getSprite().getFitHeight());
+                character.land();
+            }
         }
 
-        // Di chuyển quái vật
+        // Ngăn nhân vật đi ra ngoài biên giới màn chơi
+        if (character.getTranslateX() < 0) {
+            character.setTranslateX(0);
+        } else if (character.getTranslateX() > 800 - character.getSprite().getFitWidth()) {
+            character.setTranslateX(800 - character.getSprite().getFitWidth());
+        }
+
+        // Cập nhật logic của quái vật
         monster.move();
-
-        // Kiểm tra nếu quái vật chạm vào biên giới (thay đổi hướng khi chạm biên)
         monster.changeDirectionIfEdge(800);
-
-        // Kiểm tra va chạm giữa quái vật và nhân vật
-        if (monster.isCollidingWith(player)) {
-            System.out.println("Va chạm với quái vật!");
-            // Tại đây bạn có thể thêm hành động khi nhân vật va chạm với quái vật, ví dụ: trừ mạng.
-        }
-
-        // Nếu không va chạm với nền tảng hoặc mặt đất, áp dụng trọng lực
-        if (!platform.isCollidingWith(player) && !ground.isCollidingWith(player)) {
-            player.applyGravity();
-        }
     }
 }
