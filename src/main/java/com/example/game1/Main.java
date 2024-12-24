@@ -3,7 +3,6 @@ package com.example.game1;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -19,6 +18,36 @@ public class Main extends javafx.application.Application {
     public void start(Stage primaryStage) {
         root = new Pane();
 
+
+        // Ma trận đại diện cho map
+        int[][] mapData = {
+                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        };
+
+        // Tạo map
+        TileMap map = new TileMap(mapData, root);
+
+        // Tạo Scene
+        Scene scene = new Scene(root, 800, 500); // Điều chỉnh theo map
+        primaryStage.setTitle("Tile Map Example");
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
 
         // Đường dẫn đến các frame của nhân vật
@@ -98,7 +127,7 @@ public class Main extends javafx.application.Application {
                 idleFramesPaths,
                 runFramesPaths,
                 attackFramesPaths,
-                100, 500
+                100, 800
         );
 
         // Tạo các frame cho hoạt ảnh đi bộ của quái vật
@@ -117,20 +146,12 @@ public class Main extends javafx.application.Application {
         monster = new Monster(monsterWalkFrames, 300.0, 500.0);  // Dùng double cho vị trí
 
 
-        // Tạo bản đồ
-        var map = new Map(20, 20, root);
-
         // Khởi tạo camera
         camera = new Camera(800, 600, root);
 
         root.getChildren().add(character.getSprite());
         root.getChildren().add(monster.getSprite());
 
-        // Tạo scene và gán vào stage
-        Scene scene = new Scene(root, 800, 600); // Nền trắng mặc định
-        primaryStage.setTitle("2D Platformer");
-        primaryStage.setScene(scene);
-        primaryStage.show();
 
         // Điều khiển nhân vật bằng bàn phím
         scene.setOnKeyPressed(event -> {
@@ -184,6 +205,9 @@ public class Main extends javafx.application.Application {
     private void updateGame() {
         // Cập nhật camera theo vị trí nhân vật
         camera.update(character.getX(), character.getY());
+
+        // Cập nhật mục tiêu AI cho quái vật
+        monster.setTarget(character.getX(), character.getY());
 
         // Di chuyển quái vật
         monster.move();
