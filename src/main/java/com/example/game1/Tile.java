@@ -25,4 +25,6 @@ public class Tile {
     public ImageView getSprite() {
         return sprite;
     }
+
+
 }
