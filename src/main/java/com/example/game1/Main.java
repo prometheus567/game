@@ -8,6 +8,10 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    private Camera camera;
+    private Monster monster;
+
+    @Override
     public void start(Stage primaryStage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/healthbar loca.fxml"));
@@ -25,6 +29,7 @@ public class Main extends Application {
         // Tạo Scene từ FXML, đặt kích thước cố định
         Scene scene = new Scene(root, 800, 600);
 
+<<<<<<< HEAD
         // Tạo đối tượng Character
         String[] shieldFramesPaths = {
                 "/character/shield/frame1.png",
@@ -38,6 +43,21 @@ public class Main extends Application {
                 "/character/hurt/frame4.png"
         };
 
+=======
+        // Ma trận đại diện cho map
+        int[][] mapData = {
+                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+        };
+
+        // Tạo map
+        TileMap map = new TileMap(mapData, root);
+
+        // Đường dẫn đến các frame của nhân vật
+>>>>>>> 4eecc44a8b14c0231e0f549da22a926a7f9b0e0c
         String[] runFramesPaths = {
                 "/character/run/frame1.png",
                 "/character/run/frame2.png",
@@ -106,6 +126,7 @@ public class Main extends Application {
                 }
         };
 
+        // Tạo nhân vật chính
         Character character = new Character(
                 walkFramesPaths,
                 jumpFramesPaths,
@@ -115,14 +136,31 @@ public class Main extends Application {
                 hurtFramesPaths,
                 shieldFramesPaths,
                 100,
-                500
+                800
         );
-
-        // Thêm nhân vật vào root Pane
         root.getChildren().add(character.getSprite());
 
+        // Tạo các frame cho hoạt ảnh đi bộ của quái vật
+        String[] monsterWalkFrames = {
+                "/monster/hl/hl1/Walk/Walk_1.png",
+                "/monster/hl/hl1/Walk/Walk_2.png",
+                "/monster/hl/hl1/Walk/Walk_3.png",
+                "/monster/hl/hl1/Walk/Walk_4.png",
+                "/monster/hl/hl1/Walk/Walk_5.png",
+                "/monster/hl/hl1/Walk/Walk_6.png",
+                "/monster/hl/hl1/Walk/Walk_7.png",
+                "/monster/hl/hl1/Walk/Walk_8.png"
+        };
+
+        // Tạo quái vật
+        monster = new Monster(monsterWalkFrames, 300.0, 500.0);
+        root.getChildren().add(monster.getSprite());
+
+        // Khởi tạo camera
+        camera = new Camera(800, 600, root);
+
         // Thiết lập và hiển thị Stage
-        primaryStage.setTitle("Ryoma");
+        primaryStage.setTitle("Game Map Example");
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -140,9 +178,9 @@ public class Main extends Application {
                 case SHIFT -> {
                     if (event.isShiftDown()) {
                         if (character.getSpeedX() > 0) {
-                            character.setSpeedX(5); // Chạy nhanh phải
+                            character.setSpeedX(5);
                         } else if (character.getSpeedX() < 0) {
-                            character.setSpeedX(-5); // Chạy nhanh trái
+                            character.setSpeedX(-5);
                         }
                     }
                 }
@@ -151,10 +189,40 @@ public class Main extends Application {
 
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
+<<<<<<< HEAD
                 case A, D -> character.setSpeedX(0); // Dừng di chuyển khi thả phím
                 case S -> character.stopShielding(); // Dừng shield khi thả phím
                 case SHIFT -> character.setSpeedX(0); // Dừng chạy khi thả SHIFT
+=======
+                case A, D -> character.setSpeedX(0);
+                case SHIFT -> character.setSpeedX(0);
+>>>>>>> 4eecc44a8b14c0231e0f549da22a926a7f9b0e0c
             }
         });
+
+        // Game loop đơn giản
+        new javafx.animation.AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                updateGame(character);
+            }
+        }.start();
+    }
+
+    private void updateGame(Character character) {
+        // Cập nhật camera theo vị trí nhân vật
+        camera.update(character.getX(), character.getY());
+
+        // Cập nhật mục tiêu AI cho quái vật
+        monster.setTarget(character.getX(), character.getY());
+
+        // Di chuyển quái vật
+        monster.move();
+
+        // Các logic khác của game có thể đặt ở đây
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
