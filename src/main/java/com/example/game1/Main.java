@@ -9,13 +9,35 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     public void start(Stage primaryStage) throws Exception {
-        // Load FXML và ép kiểu root thành Pane
-        Pane root = (Pane) FXMLLoader.load(getClass().getResource("/healthbar loca.fxml"));
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/healthbar loca.fxml"));
+        Pane root = loader.load();
+
+// Truy cập controller
+        HealthBarController controller = loader.getController();
+
+
+
+// Tương tác với thanh shieldbar (ví dụ: thay đổi kích thước hoặc màu sắc)
+        controller.updateShieldBar(1.0); // Gọi một phương thức để thay đổi trạng thái shield bar
+        controller.takeShieldDamage(); // Giảm shield
 
         // Tạo Scene từ FXML, đặt kích thước cố định
         Scene scene = new Scene(root, 800, 600);
 
         // Tạo đối tượng Character
+        String[] shieldFramesPaths = {
+                "/character/shield/frame1.png",
+                "/character/shield/frame2.png"
+        };
+
+        String[] hurtFramesPaths = {
+                "/character/hurt/frame1.png",
+                "/character/hurt/frame2.png",
+                "/character/hurt/frame3.png",
+                "/character/hurt/frame4.png"
+        };
+
         String[] runFramesPaths = {
                 "/character/run/frame1.png",
                 "/character/run/frame2.png",
@@ -90,6 +112,8 @@ public class Main extends Application {
                 idleFramesPaths,
                 runFramesPaths,
                 attackFramesPaths,
+                hurtFramesPaths,
+                shieldFramesPaths,
                 100,
                 500
         );
@@ -109,6 +133,10 @@ public class Main extends Application {
                 case D -> character.setSpeedX(2);
                 case SPACE -> character.jump();
                 case J -> character.attack();
+                case H -> character.hurt();
+                case S -> character.shield(); // Bật shield khi nhấn phím S
+                case K -> controller.takeShieldDamage();
+                case R -> controller.updateShieldBar(1.0); // Reset thanh shield về đầy đủ
                 case SHIFT -> {
                     if (event.isShiftDown()) {
                         if (character.getSpeedX() > 0) {
@@ -124,6 +152,7 @@ public class Main extends Application {
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
                 case A, D -> character.setSpeedX(0); // Dừng di chuyển khi thả phím
+                case S -> character.stopShielding(); // Dừng shield khi thả phím
                 case SHIFT -> character.setSpeedX(0); // Dừng chạy khi thả SHIFT
             }
         });
