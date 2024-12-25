@@ -13,24 +13,51 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/healthbar loca.fxml"));
         Pane root = loader.load();
 
-// Truy cập controller
+        // Truy cập controller
         HealthBarController controller = loader.getController();
 
-
-
-// Tương tác với thanh shieldbar (ví dụ: thay đổi kích thước hoặc màu sắc)
+        // Tương tác với thanh shieldbar (ví dụ: thay đổi kích thước hoặc màu sắc)
         controller.updateShieldBar(1.0); // Gọi một phương thức để thay đổi trạng thái shield bar
         controller.takeShieldDamage(); // Giảm shield
 
         // Tạo Scene từ FXML, đặt kích thước cố định
         Scene scene = new Scene(root, 800, 600);
 
-<<<<<<< HEAD
-        // Tạo đối tượng Character
+        // Ma trận đại diện cho map
+        int[][] mapData = {
+                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+        };
+
+        // Tạo map
+        TileMap map = new TileMap(mapData, root);
+
+        // Hoặc dùng toFront() cho thanh máu
+        controller.getGreenbar().toFront();
+        controller.getShieldbar().toFront();
+
+        // Đường dẫn đến các frame của nhân vật
         String[] shieldFramesPaths = {
                 "/character/shield/frame1.png",
                 "/character/shield/frame2.png"
@@ -43,21 +70,7 @@ public class Main extends Application {
                 "/character/hurt/frame4.png"
         };
 
-=======
-        // Ma trận đại diện cho map
-        int[][] mapData = {
-                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-        };
 
-        // Tạo map
-        TileMap map = new TileMap(mapData, root);
-
-        // Đường dẫn đến các frame của nhân vật
->>>>>>> 4eecc44a8b14c0231e0f549da22a926a7f9b0e0c
         String[] runFramesPaths = {
                 "/character/run/frame1.png",
                 "/character/run/frame2.png",
@@ -136,11 +149,13 @@ public class Main extends Application {
                 hurtFramesPaths,
                 shieldFramesPaths,
                 100,
-                800
+                500
         );
+
+        // Thêm nhân vật vào root Pane
         root.getChildren().add(character.getSprite());
 
-        // Tạo các frame cho hoạt ảnh đi bộ của quái vật
+// Tạo các frame cho hoạt ảnh đi bộ của quái vật
         String[] monsterWalkFrames = {
                 "/monster/hl/hl1/Walk/Walk_1.png",
                 "/monster/hl/hl1/Walk/Walk_2.png",
@@ -178,9 +193,9 @@ public class Main extends Application {
                 case SHIFT -> {
                     if (event.isShiftDown()) {
                         if (character.getSpeedX() > 0) {
-                            character.setSpeedX(5);
+                            character.setSpeedX(5); // Chạy nhanh phải
                         } else if (character.getSpeedX() < 0) {
-                            character.setSpeedX(-5);
+                            character.setSpeedX(-5); // Chạy nhanh trái
                         }
                     }
                 }
@@ -189,16 +204,12 @@ public class Main extends Application {
 
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
-<<<<<<< HEAD
                 case A, D -> character.setSpeedX(0); // Dừng di chuyển khi thả phím
                 case S -> character.stopShielding(); // Dừng shield khi thả phím
                 case SHIFT -> character.setSpeedX(0); // Dừng chạy khi thả SHIFT
-=======
-                case A, D -> character.setSpeedX(0);
-                case SHIFT -> character.setSpeedX(0);
->>>>>>> 4eecc44a8b14c0231e0f549da22a926a7f9b0e0c
             }
         });
+
 
         // Game loop đơn giản
         new javafx.animation.AnimationTimer() {

@@ -12,6 +12,14 @@ public class HealthBarController {
     @FXML
     private ImageView greenbar; // Thanh máu
 
+    public ImageView getGreenbar() {
+        return greenbar;
+    }
+
+    public ImageView getShieldbar() {
+        return shieldbar;
+    }
+
     @FXML
     private ImageView shieldbar; // Thanh shield
 
@@ -31,6 +39,8 @@ public class HealthBarController {
 
         // Khởi tạo clip cho thanh shield để giữ nguyên layout
         shieldClip = new Rectangle(maxShieldWidth, shieldbar.getFitHeight());
+        shieldClip.setX(0); // Đảm bảo clip bắt đầu từ góc trái
+        shieldClip.setY(0); // Đảm bảo không lệch dọc
         shieldbar.setClip(shieldClip); // Đặt clip để điều chỉnh vùng hiển thị
 
         // Khởi tạo Timeline để hồi shield
@@ -44,10 +54,7 @@ public class HealthBarController {
                         }
                         updateShieldBarUI(); // Cập nhật giao diện
                     }
-
-
                 }
-
         ));
         shieldRegenTimeline.setCycleCount(Timeline.INDEFINITE);
 
@@ -63,8 +70,6 @@ public class HealthBarController {
             }
             updateShieldBarUI(); // Cập nhật giao diện
         }
-
-
 
         // Nếu đang hồi shield, dừng lại và chờ delay
         if (isShieldRegenActive) {
@@ -89,8 +94,9 @@ public class HealthBarController {
     }
 
     private void updateShieldBarUI() {
-        // Điều chỉnh độ rộng thanh shield
-        shieldbar.setFitWidth(currentShieldWidth);
+        // Điều chỉnh clip theo chiều ngang để giảm từ phải sang trái
+        shieldClip.setWidth(currentShieldWidth); // Cập nhật độ rộng clip
+        shieldClip.setX(maxShieldWidth - currentShieldWidth); // Dịch clip sang phải để giảm từ phải qua
     }
 
     public void updateShieldBar(double scale) {
@@ -98,4 +104,5 @@ public class HealthBarController {
         currentShieldWidth = maxShieldWidth * scale;
         updateShieldBarUI();
     }
+
 }
