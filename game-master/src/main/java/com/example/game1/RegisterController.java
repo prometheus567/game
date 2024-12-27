@@ -65,8 +65,8 @@ public class RegisterController {
         }
 
         // Tạo đối tượng AuthController và gọi hàm register
-        AuthController authController = new AuthController();
-        boolean isSuccess = authController.register(username, email, password, confirmPassword);
+        DatabaseConnection conn = new DatabaseConnection();
+        boolean isSuccess = conn.register(username, email, password, confirmPassword);
 
         // Hiển thị thông báo dựa trên kết quả
         if (isSuccess) {

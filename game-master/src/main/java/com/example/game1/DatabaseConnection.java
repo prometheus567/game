@@ -1,8 +1,6 @@
 package com.example.game1;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/game";
@@ -11,12 +9,10 @@ public class DatabaseConnection {
 
     private Connection connection;
 
+    // Phương thức kết nối
     public Connection connect() {
         try {
-            // Tải Driver MySQL
             Class.forName("com.mysql.cj.jdbc.Driver");
-
-            // Kết nối đến database
             connection = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("Kết nối cơ sở dữ liệu thành công!");
             return connection;
@@ -36,6 +32,45 @@ public class DatabaseConnection {
             System.out.println("Lỗi khi kiểm tra kết nối: " + e.getMessage());
         }
         return false; // Trả về false nếu không kiểm tra được
+    }
+
+    // Phương thức đăng nhập
+    public boolean login(String email, String password) {
+        String query = "SELECT * FROM user WHERE email = ? AND password = ?";
+        try (Connection conn = this.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, email);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); // Trả về true nếu tìm thấy tài khoản
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi đăng nhập: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Phương thức đăng ký
+    public boolean register(String username, String email, String password, String confirmPassword) {
+        if (!password.equals(confirmPassword)) {
+            System.out.println("Mật khẩu xác nhận không khớp.");
+            return false;
+        }
+
+        String query = "INSERT INTO user (username, email, password) VALUES (?, ?, ?)";
+        try (Connection conn = this.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, email);
+            stmt.setString(3, password); // Thêm mã hóa mật khẩu ở đây nếu cần
+            stmt.executeUpdate();
+            System.out.println("Đăng ký thành công!");
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi đăng ký: " + e.getMessage());
+            return false;
+        }
     }
 
     // Phương thức đóng kết nối

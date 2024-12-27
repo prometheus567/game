@@ -25,7 +25,7 @@ public class LoginController {
 
     @FXML
     private PasswordField txfyourpassword;
-    private final AuthController authController = new AuthController();
+
 
 
     @FXML
@@ -79,8 +79,9 @@ public class LoginController {
     public void handleLogin(javafx.event.ActionEvent actionEvent) {
         String email = txfemail.getText();
         String password = txfyourpassword.getText();
+        DatabaseConnection conn = new DatabaseConnection();
 
-        if (authController.login(email, password)) { // Kiểm tra thông tin đăng nhập
+        if (conn.login(email, password)) { // Kiểm tra thông tin đăng nhập
             showAlert("Thành công", "Đăng nhập thành công!", Alert.AlertType.INFORMATION);
 
             // Hiển thị màn hình game (giả sử có phương thức `showGameScreen()`)
