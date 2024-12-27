@@ -64,17 +64,18 @@ public class RegisterController {
             return;
         }
 
-        // Tạo đối tượng AuthController và gọi hàm register
+        // Tạo đối tượng DatabaseConnection và gọi hàm register
         DatabaseConnection conn = new DatabaseConnection();
-        boolean isSuccess = conn.register(username, email, password, confirmPassword);
+        String resultMessage = conn.register(username, email, password, confirmPassword);
 
         // Hiển thị thông báo dựa trên kết quả
-        if (isSuccess) {
-            showAlert("Thành công", "Người dùng đã đăng ký thành công!");
+        if (resultMessage.equals("Đăng ký thành công!")) {
+            showAlert("Thành công", resultMessage);
         } else {
-            showAlert("Lỗi", "Đăng ký thất bại! Kiểm tra thông tin đăng ký hoặc thử lại sau.");
+            showAlert("Lỗi", resultMessage);
         }
     }
+
 
     @FXML
     private void handleLogin() throws IOException {
@@ -96,6 +97,12 @@ public class RegisterController {
         alert.setTitle(title);
         alert.setContentText(message);
         alert.showAndWait();
+
+
+
+
     }
+
+
 
 }

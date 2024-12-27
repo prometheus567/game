@@ -51,27 +51,54 @@ public class DatabaseConnection {
     }
 
     // Phương thức đăng ký
-    public boolean register(String username, String email, String password, String confirmPassword) {
+    public String register(String username, String email, String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
-            System.out.println("Mật khẩu xác nhận không khớp.");
-            return false;
+            return "Mật khẩu xác nhận không khớp.";
+        }
+        String checkusernameQuery = "SELECT COUNT(*) FROM user WHERE username = ?";
+        try (Connection conn = this.connect();
+             PreparedStatement checkname = conn.prepareStatement(checkusernameQuery)) {
+
+            checkname.setString(1, username);
+            ResultSet rs = checkname.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) { // Kiểm tra nếu số lượng lớn hơn 0
+                return "Tên đã tồn tại.";
+            }
+        } catch (SQLException e) {
+            return "Lỗi khi kiểm tra tên: " + e.getMessage();
         }
 
-        String query = "INSERT INTO user (username, email, password) VALUES (?, ?, ?)";
-        try (Connection conn = this.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, username);
-            stmt.setString(2, email);
-            stmt.setString(3, password); // Thêm mã hóa mật khẩu ở đây nếu cần
-            stmt.executeUpdate();
-            System.out.println("Đăng ký thành công!");
-            return true;
+
+        // Kiểm tra email đã tồn tại
+        String checkEmailQuery = "SELECT COUNT(*) FROM user WHERE email = ?";
+        try (Connection conn = this.connect();
+             PreparedStatement checkStmt = conn.prepareStatement(checkEmailQuery)) {
+
+            checkStmt.setString(1, email);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) { // Email đã tồn tại
+                return "Email đã được sử dụng. Vui lòng chọn email khác.";
+            }
         } catch (SQLException e) {
-            System.out.println("Lỗi khi đăng ký: " + e.getMessage());
-            return false;
+            return "Lỗi khi kiểm tra email: " + e.getMessage();
+        }
+
+        // Thêm người dùng mới nếu email chưa tồn tại
+        String insertQuery = "INSERT INTO user (username, email, password) VALUES (?, ?, ?)";
+        try (Connection conn = this.connect();
+             PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+
+            insertStmt.setString(1, username);
+            insertStmt.setString(2, email);
+            insertStmt.setString(3, password); // Nên mã hóa mật khẩu trước khi lưu
+            insertStmt.executeUpdate();
+            return "Đăng ký thành công!";
+        } catch (SQLException e) {
+            return "Lỗi khi đăng ký: " + e.getMessage();
         }
     }
+
 
     // Phương thức đóng kết nối
     public void disconnect() {
