@@ -1,5 +1,6 @@
 package com.example.game1;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -8,56 +9,37 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private Camera camera;
-    private Monster monster;
+    private Pane root; // Pane chính
+    private Character character; // Nhân vật chính
+    private HealthBarController controller; // Controller thanh máu
+    private GameOverEffect gameOverEffect; // Hiệu ứng Game Over
 
-    @Override
     public void start(Stage primaryStage) throws Exception {
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/healthbar loca.fxml"));
-        Pane root = loader.load();
+        root = loader.load();
 
         // Truy cập controller
-        HealthBarController controller = loader.getController();
-
-        // Tương tác với thanh shieldbar (ví dụ: thay đổi kích thước hoặc màu sắc)
-        controller.updateShieldBar(1.0); // Gọi một phương thức để thay đổi trạng thái shield bar
-        controller.takeShieldDamage(); // Giảm shield
+        controller = loader.getController();
 
         // Tạo Scene từ FXML, đặt kích thước cố định
         Scene scene = new Scene(root, 800, 600);
 
-        // Ma trận đại diện cho map
-        int[][] mapData = {
-                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 0, 1, 1, 2, 2, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 1, 0, 2, 0, 0, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
-                {1, 2, 2, 0, 0, 1, 2, 0, 0, 1, 1, 2, 2, 2, 0, 1, 1, 2, 2, 0, 2, 0, 0, 1, 1, 2, 2, 2},
+        // Tương tác với thanh shieldbar
+        controller.updateShieldBar(1.0); // Gọi một phương thức để thay đổi trạng thái shield bar
+        controller.takeShieldDamage(); // Giảm shield
+
+        // Tương tác với thanh greenbar
+        controller.takeGreenbarDamage(); // Gọi để giảm máu
+        controller.updateGreenbar(1.0); // Hồi phục đầy máu
+
+        // Tạo đối tượng Character
+        String[] deadFramesPaths = {
+                "/character/dead/frame1.png",
+                "/character/dead/frame2.png",
+                "/character/dead/frame3.png"
         };
 
-        // Tạo map
-        TileMap map = new TileMap(mapData, root);
-
-        // Hoặc dùng toFront() cho thanh máu
-        controller.getGreenbar().toFront();
-        controller.getShieldbar().toFront();
-
-        // Đường dẫn đến các frame của nhân vật
         String[] shieldFramesPaths = {
                 "/character/shield/frame1.png",
                 "/character/shield/frame2.png"
@@ -69,7 +51,6 @@ public class Main extends Application {
                 "/character/hurt/frame3.png",
                 "/character/hurt/frame4.png"
         };
-
 
         String[] runFramesPaths = {
                 "/character/run/frame1.png",
@@ -139,8 +120,7 @@ public class Main extends Application {
                 }
         };
 
-        // Tạo nhân vật chính
-        Character character = new Character(
+        character = new Character(
                 walkFramesPaths,
                 jumpFramesPaths,
                 idleFramesPaths,
@@ -148,34 +128,35 @@ public class Main extends Application {
                 attackFramesPaths,
                 hurtFramesPaths,
                 shieldFramesPaths,
+                deadFramesPaths,
                 100,
                 500
         );
 
+        // Thiết lập callback cho animation chết
+        character.setOnDeathCallback(() -> gameOverEffect.triggerGameOver());
+
         // Thêm nhân vật vào root Pane
         root.getChildren().add(character.getSprite());
 
-// Tạo các frame cho hoạt ảnh đi bộ của quái vật
-        String[] monsterWalkFrames = {
-                "/monster/hl/hl1/Walk/Walk_1.png",
-                "/monster/hl/hl1/Walk/Walk_2.png",
-                "/monster/hl/hl1/Walk/Walk_3.png",
-                "/monster/hl/hl1/Walk/Walk_4.png",
-                "/monster/hl/hl1/Walk/Walk_5.png",
-                "/monster/hl/hl1/Walk/Walk_6.png",
-                "/monster/hl/hl1/Walk/Walk_7.png",
-                "/monster/hl/hl1/Walk/Walk_8.png"
+
+        // Khởi tạo game loop
+        AnimationTimer gameLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                updateGame(); // Cập nhật logic game
+                checkGameOver(); // Kiểm tra điều kiện Game Over
+            }
         };
+        gameLoop.start();
 
-        // Tạo quái vật
-        monster = new Monster(monsterWalkFrames, 300.0, 500.0);
-        root.getChildren().add(monster.getSprite());
+        // Tạo hiệu ứng game over
+        gameOverEffect = new GameOverEffect(root, character, scene, gameLoop);
 
-        // Khởi tạo camera
-        camera = new Camera(800, 600, root);
+
 
         // Thiết lập và hiển thị Stage
-        primaryStage.setTitle("Game Map Example");
+        primaryStage.setTitle("Ryoma");
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -189,7 +170,8 @@ public class Main extends Application {
                 case H -> character.hurt();
                 case S -> character.shield(); // Bật shield khi nhấn phím S
                 case K -> controller.takeShieldDamage();
-                case R -> controller.updateShieldBar(1.0); // Reset thanh shield về đầy đủ
+                case U -> controller.takeGreenbarDamage(); // Giảm máu khi nhấn phím H
+                case R -> controller.updateGreenbar(1.0); // Hồi phục đầy máu khi nhấn phím R
                 case SHIFT -> {
                     if (event.isShiftDown()) {
                         if (character.getSpeedX() > 0) {
@@ -210,30 +192,24 @@ public class Main extends Application {
             }
         });
 
-
-        // Game loop đơn giản
-        new javafx.animation.AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                updateGame(character);
-            }
-        }.start();
     }
 
-    private void updateGame(Character character) {
-        // Cập nhật camera theo vị trí nhân vật
-        camera.update(character.getX(), character.getY());
+    private void updateGame() {
+        // Cập nhật trạng thái nhân vật
+        if (!character.isDead()) {
+            character.moveCharacter();
+        }
+    }
 
-        // Cập nhật mục tiêu AI cho quái vật
-        monster.setTarget(character.getX(), character.getY());
-
-        // Di chuyển quái vật
-        monster.move();
-
-        // Các logic khác của game có thể đặt ở đây
+    private void checkGameOver() {
+        if (controller.getGreenbarHealth() <= 0) {
+            character.triggerDeadAnimation(); // Gọi animation chết (nếu cần)
+            gameOverEffect.triggerGameOver(); // Hiển thị hình ảnh Game Over
+        }
     }
 
     public static void main(String[] args) {
         launch(args);
     }
+
 }
