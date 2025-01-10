@@ -2,6 +2,7 @@ package com.example.game1;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
@@ -12,9 +13,18 @@ public class Character {
     private double speedY; // Tốc độ dọc
     private double xPosition; // Vị trí x
     private double yPosition; // Vị trí y
+    private double width;
+
+
+    public void setSpeedY(double speedY) {
+        this.speedY = speedY;
+    }
+    static final double GRAVITY = 0.1; // Trọng lực
+
+
 
     private boolean onGround = true; // Kiểm tra nhân vật có đang đứng trên đất
-    private double gravity = 0.5; // Lực kéo trọng lực
+    private double gravity = 0.1; // Lực kéo trọng lực
     private double jumpForce = -10; // Lực nhảy
 
     private Timeline moveTimeline; // Timeline để cập nhật di chuyển
@@ -37,9 +47,29 @@ public class Character {
     private Image[][] attackFrames; // Chứa các frames cho từng đòn đánh
     private Timeline resetComboTimer;
 
+    private Image[] hurtFrames;
+    private Timeline hurtTimeLine;
+    private boolean isHurt = false; // Mặc định không bị hurt
+
+    private Image[] shieldFrames; // Frames cho trạng thái shield
+    private boolean isShielding = false; // Kiểm tra trạng thái shield
+    private Timeline shieldTimeline; // Quản lý frame chuyển đổi giữa frame 1 và 2
+    private HealthBarController healthBarController; // Tham chiếu đến HealthBarController
+    // Phương thức để thiết lập vị trí X của nhân vật
+    public void setX(double x) {
+        this.xPosition = x;
+        sprite.setTranslateX(x); // Cập nhật vị trí của sprite
+    }
+
+    // Phương thức để thiết lập vị trí Y của nhân vật
+    public void setY(double y) {
+        this.yPosition = y;
+        sprite.setTranslateY(y); // Cập nhật vị trí của sprite
+    }
+
     // Constructor
     public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
-                     String[] runFramesPaths, String[][] attackFramesPaths, double initialX, double initialY) {
+                     String[] runFramesPaths, String[][] attackFramesPaths,String[] hurtFramesPaths,String[] shieldFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
         this.sprite.setFitWidth(100); // Kích thước nhân vật
         this.sprite.setFitHeight(100);
@@ -49,6 +79,20 @@ public class Character {
 
         this.speedX = 0;
         this.speedY = 0;
+
+        // Khởi tạo shieldFrames
+        this.shieldFrames = new Image[shieldFramesPaths.length];
+        for (int i = 0; i < shieldFramesPaths.length; i++){
+            shieldFrames[i] = new Image(getClass().getResource(shieldFramesPaths[i]).toExternalForm());
+        }
+
+        // Khởi tạo Timeline cho shield
+        shieldTimeline = new Timeline();
+        shieldTimeline.setCycleCount(1); // Chỉ chạy một lần
+        shieldTimeline.getKeyFrames().add(new KeyFrame(
+                Duration.seconds(0.2), // Thời gian frame 2 hiển thị
+                event -> sprite.setImage(shieldFrames[0]) // Quay lại frame 1
+        ));
 
         // Khởi tạo attackFrames
         attackFrames = new Image[3][];
@@ -76,7 +120,7 @@ public class Character {
         comboTimeline.setOnFinished(event -> {
             // Đặt trạng thái delay để chờ người chơi thực hiện đòn kế tiếp
             Timeline delayTimeline = new Timeline(new KeyFrame(
-                    Duration.seconds(0.5), // Delay 0.5 giây
+                    Duration.seconds(1), // Delay 0.5 giây
                     delayEvent -> {
                         // Nếu không có hành động tiếp theo, chuyển về idle
                         if (comboStep == 0) {
@@ -91,6 +135,26 @@ public class Character {
             // Đặt trạng thái chờ để reset combo sau khi delay kết thúc
             resetComboAfterDelay();
         });
+
+        // Khởi tạo hurtFrames
+        this.hurtFrames = new Image[hurtFramesPaths.length];
+        for (int i = 0; i < hurtFramesPaths.length; i++){
+            hurtFrames[i] = new Image(getClass().getResource(hurtFramesPaths[i]).toExternalForm());
+        }
+
+        hurtTimeLine = new Timeline();
+        hurtTimeLine.setCycleCount(1);
+
+        for (int i = 0; i < hurtFrames.length; i++){
+            final int index = i;
+            hurtTimeLine.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(0.2*i),
+                    event -> sprite.setImage(hurtFrames[index])
+            ));
+        }
+
+        // Khi hurt kết thúc, quay về idle
+        hurtTimeLine.setOnFinished(event -> idleTimeline.play());
 
         // Tạo hoạt ảnh chạy
         this.runFrames = new Image[runFramesPaths.length]; //Khởi tạo mảng runFrames
@@ -168,7 +232,29 @@ public class Character {
         moveTimeline.play();
     }
 
+    public void hurt(){
+        if (isHurt) return; // Nếu đang bị hurt, không làm gì cả
+
+        isHurt = true; // Đặt trạng thái hurt
+
+        // Chạy hoạt ảnh hurt
+        hurtTimeLine.setOnFinished(event -> {
+            isHurt = false; // Khi hoạt ảnh kết thúc, bỏ trạng thái hurt
+            idleTimeline.play(); // Quay lại trạng thái idle
+        });
+        hurtTimeLine.playFromStart();
+    }
+
     private void moveCharacter() {
+        if (isShielding) {
+            // Nếu đang shield, nhân vật không di chuyển
+            return;
+        }
+
+        if (hurtTimeLine.getStatus() == Timeline.Status.RUNNING) {
+            return;
+        }
+
         xPosition += speedX;
 
         if (!onGround) {
@@ -181,7 +267,7 @@ public class Character {
 
         if (yPosition >= 500) { // Vị trí mặt đất
             yPosition = 500;
-            onGround = true;
+            onGround = true; // Cập nhật trạng thái trên đất
             speedY = 0;
             jumpCount = 0;
 
@@ -204,11 +290,14 @@ public class Character {
     }
 
     public void jump() {
+        if (isHurt || isShielding) return; // Không nhảy nếu đang bị hurt hoặc shield
+
         if (jumpCount < maxJumpCount) { // Kiểm tra số lần nhảy
             speedY = jumpForce; // Thực hiện nhảy
             onGround = false; // Không còn trên đất
             jumpCount++; // Tăng số lần nhảy
 
+            isShielding = false; // Tắt trạng thái shield khi nhảy
             walkTimeline.stop(); // Tạm dừng hoạt ảnh đi bộ
 
             // Cập nhật hoạt ảnh nhảy
@@ -230,7 +319,44 @@ public class Character {
         }
     }
 
+    public void shield() {
+        if (isShielding || !onGround) return; // Không bật shield nếu đang shield hoặc không ở trên mặt đất
+
+        isShielding = true; // Bật trạng thái shield
+        sprite.setImage(shieldFrames[0]); // Hiển thị frame 1
+        idleTimeline.stop(); // Tắt trạng thái idle
+        walkTimeline.stop(); // Dừng các trạng thái khác
+        runTimeLine.stop();
+        jumpTimeline.stop(); // Dừng hoạt ảnh nhảy nếu có
+        hurtTimeLine.stop(); // Dừng trạng thái hurt nếu có
+    }
+
+    public void stopShielding() {
+        if (!isShielding) return; // Nếu không trong trạng thái shield, không làm gì cả
+
+        isShielding = false; // Tắt trạng thái shield
+        idleTimeline.play(); // Quay lại trạng thái idle
+    }
+
+    public void takeHitWhileShielding() {
+        if (!isShielding) return; // Nếu không trong trạng thái shield, thoát
+
+        // Hiển thị frame 2 khi bị tấn công
+        sprite.setImage(shieldFrames[1]);
+
+        // Giảm shield thông qua HealthBarController
+        if (healthBarController != null) {
+            healthBarController.takeShieldDamage();
+        }
+
+        // Quay lại frame 1 sau một thời gian
+        shieldTimeline.playFromStart();
+    }
+
+
     public void setSpeedX(double speedX) {
+        if (isHurt) return;
+
         this.speedX = speedX;
 
         if (speedX != 0) {
@@ -305,8 +431,14 @@ public class Character {
         comboTimeline.playFromStart();
     }
 
+    public double getHeight() {
+        return sprite.getFitHeight(); // Trả về chiều cao của sprite
+    }
+
 
     public void attack() {
+        if (isHurt) return;
+
         if (comboTimeline != null && comboTimeline.getStatus() == Timeline.Status.RUNNING) {
             return; // Nếu đang đánh, không nhận thêm input
         }
@@ -333,7 +465,13 @@ public class Character {
     public double getY() {
         return yPosition;
     }
+    public double getSpeedY() {
+        return speedY;
+    }
 
 
+    public double getWidth() {
+        return width;
+    }
 
 }
