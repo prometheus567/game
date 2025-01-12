@@ -18,9 +18,77 @@ public class Main extends Application {
 
 
 
+
+
+
+
+
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        this.primaryStage = primaryStage;
+        this.primaryStage = primaryStage; // Gán giá trị cho biến toàn cục
+
+        // Tải giao diện login.fxml
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+        Scene loginScene = new Scene(loader.load());
+
+        // Lấy controller của login.fxml
+        LoginController loginController = loader.getController();
+
+        // Truyền Stage vào LoginController để chuyển giao diện sau này
+        loginController.setPrimaryStage(this.primaryStage);
+        loginController.setMainApp(this);
+
+        // Hiển thị giao diện đăng nhập
+        this.primaryStage.setTitle("Login");
+        this.primaryStage.setScene(loginScene);
+        this.primaryStage.show();
+    }
+
+    public void showGameScreen() {
+        try {
+            // Kiểm tra xem primaryStage có bị null không
+            if (this.primaryStage == null) {
+                System.err.println("primaryStage is null in showGameScreen().");
+                return;
+            }
+
+            // Khởi tạo các thành phần game
+            initializeCharacter();
+            initializeMonster();
+            initializeMaps();
+
+            // Thiết lập camera
+            camera = new Camera(600, 600, currentMap.getRoot());
+
+            // Khởi tạo Scene với map đầu tiên
+            Scene gameScene = new Scene(currentMap.getRoot(), 800, 600);
+
+            // Khởi tạo thanh máu và thanh shield
+            initializeHealthBar();
+
+            // Thiết lập điều khiển bàn phím
+            setupKeyControls(gameScene);
+
+            // Thiết lập Stage và hiển thị giao diện game
+            primaryStage.setTitle("Game Map Example");
+            primaryStage.setScene(gameScene);
+            primaryStage.show();
+
+            // Bắt đầu game loop
+            startGameLoop();
+        } catch (Exception e) {
+            System.err.println("Error while showing game screen:");
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
+      /*  this.primaryStage = primaryStage;
 
         // Khởi tạo các thành phần
         initializeCharacter();
@@ -46,7 +114,7 @@ public class Main extends Application {
 
         // Bắt đầu game loop
         startGameLoop();
-    }
+    }*/
 
     private void initializeCharacter() {
         // Tạo nhân vật với các frame hoạt ảnh

@@ -31,6 +31,20 @@ public class LoginController {
     @FXML
     private TextField txfyourusername;
 
+
+    private Stage primaryStage;
+    private Main mainApp;
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+
+    }
+
+    // Nhận đối tượng Main từ lớp Main
+    public void setMainApp(Main mainApp) {
+        this.mainApp = mainApp;
+    }
+
   /*  @FXML
     private void handleLogin(ActionEvent event) {
         String username = txfyourusername.getText();
@@ -86,12 +100,17 @@ public class LoginController {
 
             // Hiển thị màn hình game (giả sử có phương thức `showGameScreen()`)
             // showGameScreen();
+            mainApp.showGameScreen();
+            Stage currentStage = (Stage) btnlogin.getScene().getWindow();
+            currentStage.close();
+
         } else {
             showAlert("Lỗi", "Đăng nhập không thành công. Vui lòng thử lại.", Alert.AlertType.ERROR);
 
             // Xóa thông tin đăng nhập để nhập lại
             txfemail.clear();
             txfyourpassword.clear();
+
+            }
         }
     }
-}

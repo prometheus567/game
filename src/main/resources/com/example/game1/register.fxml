@@ -12,13 +12,13 @@
 
 <AnchorPane prefHeight="508.0" prefWidth="736.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.game1.RegisterController">
    <children>
-      <Pane layoutX="1.0" layoutY="6.0" prefHeight="518.0" prefWidth="736.0">
+      <ImageView fitHeight="559.0" fitWidth="759.0">
+         <image>
+            <Image url="@../../../../../../../game1/src/main/resources/com/example/game1/assent/nendk.jpg" />
+         </image>
+      </ImageView>
+      <Pane layoutX="-1.0" layoutY="6.0" prefHeight="546.0" prefWidth="759.0">
          <children>
-            <ImageView fitHeight="524.0" fitWidth="744.0" layoutX="-2.0" layoutY="-6.0">
-               <image>
-                  <Image url="@../../../../../../../game1/src/main/resources/com/example/game1/assent/nendk.jpg" />
-               </image>
-            </ImageView>
             <TextField fx:id="txfusername" layoutX="247.0" layoutY="104.0" prefHeight="36.0" prefWidth="238.0" promptText="user name">
                <font>
                   <Font size="14.0" />
