@@ -9,17 +9,17 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="477.0" prefWidth="845.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.game1.Login.LoginController" >
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="477.0" prefWidth="845.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.game1.LoginController">
 
    <children>
       <Pane prefHeight="473.0" prefWidth="843.0">
          <children>
             <ImageView fitHeight="607.0" fitWidth="843.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../../../../../../../Users/OS/OneDrive/Pictures/ảnh%20game/Drawing-4.sketchpad.jpeg" />
+                  <Image url="@../../../../../../../../../../Users/OS/OneDrive/Pictures/ảnh%20game/Drawing-4.sketchpad.jpeg" />
                </image>
             </ImageView>
-            <TextField fx:id="txfyourusername" layoutX="500.0" layoutY="188.0" prefHeight="36.0" prefWidth="279.0" promptText="Your username">
+            <TextField fx:id="txfemail" layoutX="500.0" layoutY="188.0" prefHeight="36.0" prefWidth="279.0" promptText="Your username">
                <font>
                   <Font size="18.0" />
                </font>
@@ -34,7 +34,7 @@
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button fx:id="btnregistor" layoutX="676.0" layoutY="389.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="62.0" text="registor" />
+            <Button fx:id="btnregistor" layoutX="676.0" layoutY="389.0" mnemonicParsing="false" onAction="#handleRegister" prefHeight="31.0" prefWidth="62.0" text="registor" />
          </children>
       </Pane>
    </children>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="60" height="20" tilewidth="32" tileheight="32" nextobjectid="1">
+ <tileset firstgid="1" name="Background" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/2 Background/Day/Background.png" width="576" height="324"/>
+ </tileset>
+ <tileset firstgid="181" name="Tileset" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/Tileset.png" width="384" height="256"/>
+ </tileset>
+ <tileset firstgid="277" name="1" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Bushes/1.png" width="32" height="33"/>
+ </tileset>
+ <tileset firstgid="278" name="2" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Fence/2.png" width="35" height="64"/>
+ </tileset>
+ <tileset firstgid="280" name="6" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Fence/6.png" width="48" height="64"/>
+ </tileset>
+ <tileset firstgid="282" name="7" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Fence/7.png" width="48" height="64"/>
+ </tileset>
+ <tileset firstgid="284" name="2" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Fountain/2.png" width="72" height="72"/>
+ </tileset>
+ <tileset firstgid="288" name="Tree4" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Other/Tree4.png" width="175" height="190"/>
+ </tileset>
+ <tileset firstgid="313" name="Tree2" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Other/Tree2.png" width="124" height="129"/>
+ </tileset>
+ <tileset firstgid="325" name="Tree1" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Other/Tree1.png" width="62" height="103"/>
+ </tileset>
+ <tileset firstgid="328" name="6" tilewidth="32" tileheight="32">
+  <image source="../tiles/greenzone/3 Objects/Stones/6.png" width="70" height="44"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="60" height="20">
+  <data encoding="base64" compression="zlib">
+   eJzt0mVTFQEUgOErdoJiIKgoGKjYiQ0KYrdgt2Jid2Bhd6HYhWKh+AN9/sHOXBnu3pk9M8/H8+7Z2U2JxWItaUVr2tCWdrSnAx3pRGe6kEoLUuLYjXcvtQmenai7m2o3nk6ib27ufyOZ3jeR3zeNrnT7z/ubu9OdHvSkFxn0JpMs+tCXfmTTnwHkkMtA0pOoM5gh5DGUYQwnnxGMZBSjGcNYxjGeCUxkUBJ1JlPAFKYyjenMYCazKKSI2cyhmBLmUsqkEHWCGvNZwEIWsZglLGUZy1nBSlaxmjLKWcNa5oWoE9RYzwY2sonNbGEr29jODnayiwp2s4e97GNdiDpBjQNUcpBDHOYIRznGcU5wklOc5gxnOcd59oeoE9So4iKXuMwVrlLNNa5zg5vc4jZ3uMs97nMhRJ2gxkMe8ZgnPOUZNTznBbW85BWvecNb3vGeByHqBDU+8onP1PGFr9Tzje/84Ce/aOA3f2jkLx9C1AlqRBNNNNFEE875B91o2gc=
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="60" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztzksKgCAQgOHxEPZ+3P8AQVvrYg20GcSo3ET4//AtHBhVhIiIiIiIcqucSKM6Y1Cjy7vvq927vDvVqlW9Man54l2fmNvZm934bHdT7zz5S9xSmKC2QuxqBfBbBx1xB5k=
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="60" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztlFcKAkEUBGdvYs45pzXH+1/IEvTv+dB1EYUuKBZ6Zrr/NgQhhBBCiN8hE4WQxRzmsRD9//aUnhnOjb4iWQnLWMFqgk2v3yONbYsFPTEujb4aWR0b2MRWgk2v3yON7YPxZkW2xo1x1ibrYBd72E+w6fV7pLF9NN5syXa4N84GZEMc4Rgn9ztnvpcX9h/3nvV7XZ9u3zh98X8jhBDiPa7OKRGd
+  </data>
+ </layer>
+</map>

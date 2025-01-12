@@ -13,9 +13,18 @@ public class Character {
     private double speedY; // Tốc độ dọc
     private double xPosition; // Vị trí x
     private double yPosition; // Vị trí y
+    private double width;
+
+
+    public void setSpeedY(double speedY) {
+        this.speedY = speedY;
+    }
+    static final double GRAVITY = 0.1; // Trọng lực
+
+
 
     private boolean onGround = true; // Kiểm tra nhân vật có đang đứng trên đất
-    private double gravity = 0.5; // Lực kéo trọng lực
+    private double gravity = 0.1; // Lực kéo trọng lực
     private double jumpForce = -10; // Lực nhảy
 
     private Timeline moveTimeline; // Timeline để cập nhật di chuyển
@@ -46,6 +55,17 @@ public class Character {
     private boolean isShielding = false; // Kiểm tra trạng thái shield
     private Timeline shieldTimeline; // Quản lý frame chuyển đổi giữa frame 1 và 2
     private HealthBarController healthBarController; // Tham chiếu đến HealthBarController
+    // Phương thức để thiết lập vị trí X của nhân vật
+    public void setX(double x) {
+        this.xPosition = x;
+        sprite.setTranslateX(x); // Cập nhật vị trí của sprite
+    }
+
+    // Phương thức để thiết lập vị trí Y của nhân vật
+    public void setY(double y) {
+        this.yPosition = y;
+        sprite.setTranslateY(y); // Cập nhật vị trí của sprite
+    }
 
     // Constructor
     public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
@@ -411,6 +431,10 @@ public class Character {
         comboTimeline.playFromStart();
     }
 
+    public double getHeight() {
+        return sprite.getFitHeight(); // Trả về chiều cao của sprite
+    }
+
 
     public void attack() {
         if (isHurt) return;
@@ -441,7 +465,13 @@ public class Character {
     public double getY() {
         return yPosition;
     }
+    public double getSpeedY() {
+        return speedY;
+    }
 
 
+    public double getWidth() {
+        return width;
+    }
 
 }

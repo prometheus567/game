@@ -13,8 +13,8 @@ public class Camera {
     }
 
     public void update(double characterX, double characterY) {
-        double cameraX = Math.max(0, Math.min(characterX - width / 2, 1000)); // Giới hạn camera
-        double cameraY = Math.max(0, Math.min(characterY - height / 2, 500));
+        double cameraX = Math.max(0, Math.min(characterX - width / 2, 10000)); // Giới hạn camera
+        double cameraY = Math.max(0, Math.min(characterY - height / 2, 1100));
 
         root.setLayoutX(-cameraX);
         root.setLayoutY(-cameraY);

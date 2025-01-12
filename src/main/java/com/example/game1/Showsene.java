@@ -17,13 +17,7 @@ public class Showsene extends Application {
         loginStage.setScene(loginScene);
         loginStage.show();
 
-        // Tạo cửa sổ Register
-        FXMLLoader registerLoader = new FXMLLoader(getClass().getResource("register.fxml"));
-        Scene registerScene = new Scene(registerLoader.load());
-        Stage registerStage = new Stage();
-        registerStage.setTitle("Register");
-        registerStage.setScene(registerScene);
-        registerStage.show();
+
     }
 
     public static void main(String[] args) {

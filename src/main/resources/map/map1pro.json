@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="20" tilewidth="32" tileheight="32" nextobjectid="12">
+ <tileset firstgid="1" name="Background" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/2 Background/Background.png" width="576" height="324"/>
+ </tileset>
+ <tileset firstgid="181" name="Tileset" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/1 Tiles/Tileset.png" width="320" height="192"/>
+  <terraintypes>
+   <terrain name="co" tile="14"/>
+  </terraintypes>
+ </tileset>
+ <tileset firstgid="241" name="1" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/3 Objects/Ladders/1.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="242" name="6" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/3 Objects/Ridges/6.png" width="47" height="55"/>
+ </tileset>
+ <tileset firstgid="243" name="4" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/3 Objects/Ridges/4.png" width="65" height="61"/>
+ </tileset>
+ <tileset firstgid="245" name="2" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/3 Objects/Stones/2.png" width="47" height="57"/>
+ </tileset>
+ <tileset firstgid="246" name="3" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/3 Objects/Stones/3.png" width="52" height="63"/>
+ </tileset>
+ <tileset firstgid="247" name="3" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/3 Objects/Trees/3.png" width="123" height="150"/>
+ </tileset>
+ <tileset firstgid="259" name="Chest" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/4 Animated objects/Chest.png" width="128" height="32"/>
+ </tileset>
+ <tileset firstgid="263" name="Flag" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/4 Animated objects/Flag.png" width="192" height="48"/>
+ </tileset>
+ <tileset firstgid="269" name="1" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/2 Background/Layers/1.png" width="576" height="324"/>
+ </tileset>
+ <tileset firstgid="449" name="2" tilewidth="32" tileheight="32">
+  <image source="../tiles/forest/3 Objects/Ladders/2.png" width="32" height="32"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="40" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztzsVWllEAQNHfbrERE7E7sAtBxe7u7u4EuzuwAxW7Wyf2g7kf4M68g2+5GOzpWedLKpX6mmC/+J1Qf0r//vnvW8KVoSzlKE8FKlKJylShKtWoTg1qkkYtalMnUifUqEs96tOAdBqSQSMa04SmNKM5mbQgi5a0itQJNVrThra0oz0d6EgnOtOFrnSjOz3Ipie96B2pE2r0oS/96M8ABjKIweQwhFzyGMowhpPPCEZG6oQaoxjNGMYyjvFMYCKTmMwUpjKN6cxgJrOYHakTasxhLvOYzwIWsojFLGEpy1jOClayitWsYW2kTqixjvVsYCOb2MwWtrKN7exgJ7vYzR72UkBhpE6osY/9HOAghzjMEY5yjOOc4CSnOM0ZznKO85E6ocYFLnKJyxRxhatc4zo3uMktbnOHuxRzj/uROqHGA0p4yCMe84SnPOM5L3jJK17zhre84z0fInVCjY98SqjPfOdHQv0s/fvv//4COA62TQ==
+  </data>
+ </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="1" name="start" x="1" y="412" width="64" height="64"/>
+  <object id="2" name="monster1" x="693" y="417" width="69" height="63"/>
+  <object id="4" name="monster2" x="825" y="419" width="60" height="59"/>
+  <object id="5" name="end" x="1218" y="421" width="51" height="57"/>
+ </objectgroup>
+ <layer name="Tile Layer 2" width="40" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztk/kKwjAMxlsnCjo8X8DrCba+uvin+Eje9/ENGogj3YabTHCBHzFtk3yNq1ZK1UCYQMt63/oO6IIe6IMB0LaOB+pCHOUZ5g2rb4SedGYIAmFdyqO9ERiDCZiCGasTOHpLmoxjnfccCjVdd6HYpU/q7eoraZVizfTRHBsOfRz+/yZpSJtb2l34/KSzEtL8XLPJCuWMY/lk9O2Ewp5K2SvCzBdqVpbP2nhcvi5bhWwr6JrDL8oWYi2uJ4qXkf8RTXE9n+o7ghM4F6SPNBSl7wKu4JZDlzSzovTdwQM8M5xtOt4e9d2odw18fc3iLdjFauzZ7y2P0VODmu3tJbz/Q4Y7VFbZP9sLjXZYfQ==
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="40" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMApGwSjADw4yDrQL8IOPRLBHwSgYBYMDAACaDgOW
+  </data>
+ </layer>
+</map>
