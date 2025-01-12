@@ -7,6 +7,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+import java.util.List;
+
 public class Character {
     private ImageView sprite; // Hiển thị nhân vật
     private double speedX; // Tốc độ ngang
@@ -14,6 +16,9 @@ public class Character {
     private double xPosition; // Vị trí x
     private double yPosition; // Vị trí y
     private double width;
+
+
+
 
 
     public void setSpeedY(double speedY) {
@@ -32,7 +37,7 @@ public class Character {
     private Timeline jumpTimeline; // Timeline hoạt ảnh nhảy
 
     private int jumpCount = 0; // Số lần nhảy hiện tại
-    private final int maxJumpCount = 2; // Giới hạn số lần nhảy (double jump)
+    private final int maxJumpCount = 5; // Giới hạn số lần nhảy (double jump)
     private int frameIndex = 0; // Theo dõi frame hiện tại của hoạt ảnh nhảy
     private Image[] jumpFrames;
 
@@ -70,6 +75,8 @@ public class Character {
     // Constructor
     public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
                      String[] runFramesPaths, String[][] attackFramesPaths,String[] hurtFramesPaths,String[] shieldFramesPaths, double initialX, double initialY) {
+
+
         this.sprite = new ImageView();
         this.sprite.setFitWidth(100); // Kích thước nhân vật
         this.sprite.setFitHeight(100);
@@ -265,7 +272,7 @@ public class Character {
         }
         yPosition += speedY;
 
-        if (yPosition >= 500) { // Vị trí mặt đất
+        if (yPosition >= 800) { // Vị trí mặt đất
             yPosition = 500;
             onGround = true; // Cập nhật trạng thái trên đất
             speedY = 0;
@@ -288,6 +295,9 @@ public class Character {
         sprite.setTranslateX(xPosition);
         sprite.setTranslateY(yPosition);
     }
+
+
+
 
     public void jump() {
         if (isHurt || isShielding) return; // Không nhảy nếu đang bị hurt hoặc shield
