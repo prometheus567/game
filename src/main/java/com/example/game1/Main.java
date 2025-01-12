@@ -1,10 +1,13 @@
 package com.example.game1;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import static com.example.game1.Character.GRAVITY;
 
@@ -15,6 +18,8 @@ public class Main extends Application {
     private Camera camera;
     private Stage primaryStage;
     private Platform platform;
+    private Timeline moveTimeline;
+
 
 
 
@@ -203,10 +208,18 @@ public class Main extends Application {
         new javafx.animation.AnimationTimer() {
             @Override
             public void handle(long now) {
-                updateGame();
+                updateGame(); // Gọi cập nhật game
             }
         }.start();
+        moveTimeline = new Timeline(new KeyFrame(
+                Duration.seconds(0.016), // 60 FPS
+                event -> character.moveCharacter(currentMap) // Truyền `currentMap` vào
+        ));
+        moveTimeline.setCycleCount(Timeline.INDEFINITE); // Lặp vô hạn
+        moveTimeline.play(); // Bắt đầu chạy timeline
+
     }
+
 
     private void updateGame() {
         // Cập nhật vị trí camera
@@ -215,6 +228,7 @@ public class Main extends Application {
         // Cập nhật logic quái vật
         monster.setTarget(character.getX(), character.getY());
         monster.move();
+
 
         // Đảm bảo các đối tượng tồn tại trong root của map
         Pane root = currentMap.getRoot();
@@ -234,6 +248,14 @@ public class Main extends Application {
 
         // Cập nhật vị trí nhân vật theo vận tốc Y
         character.setY(character.getY() + character.getSpeedY());
+
+        // Di chuyển nhân vật
+        character.moveCharacter(currentMap);
+
+        // Cập nhật logic khác (camera, quái vật, v.v.)
+        camera.update(character.getX(), character.getY());
+        monster.setTarget(character.getX(), character.getY());
+        monster.move();
 
     }
 
@@ -256,6 +278,7 @@ public class Main extends Application {
         }
         return false;
     }
+
 
 
 

@@ -230,13 +230,8 @@ public class Character {
             ));
         }
 
-        // Timeline cập nhật di chuyển
-        moveTimeline = new Timeline(new KeyFrame(
-                Duration.seconds(0.016), // 60 FPS
-                event -> moveCharacter()
-        ));
-        moveTimeline.setCycleCount(Timeline.INDEFINITE);
-        moveTimeline.play();
+
+
     }
 
     public void hurt(){
@@ -252,49 +247,41 @@ public class Character {
         hurtTimeLine.playFromStart();
     }
 
-    private void moveCharacter() {
-        if (isShielding) {
-            // Nếu đang shield, nhân vật không di chuyển
-            return;
-        }
+    public void moveCharacter(Map currentMap) {
+        if (currentMap == null) return; // Nếu currentMap chưa được truyền, thoát
+        if (isShielding || isHurt) return; // Không di chuyển nếu đang shield hoặc bị hurt
 
-        if (hurtTimeLine.getStatus() == Timeline.Status.RUNNING) {
-            return;
-        }
-
+        // Cập nhật vị trí ngang
         xPosition += speedX;
 
+        // Áp dụng trọng lực nếu không đứng trên nền
         if (!onGround) {
-            speedY += gravity; // Áp dụng trọng lực khi không đứng trên đất
-            walkTimeline.stop();
-            runTimeLine.stop();
-            idleTimeline.stop();
+            speedY += gravity; // Trọng lực kéo xuống
         }
+
+        // Cập nhật vị trí dọc
         yPosition += speedY;
 
-        if (yPosition >= 800) { // Vị trí mặt đất
-            yPosition = 500;
-            onGround = true; // Cập nhật trạng thái trên đất
-            speedY = 0;
-            jumpCount = 0;
+        // Kiểm tra va chạm với nền tảng
+        Platform collidedPlatform = currentMap.checkCollision(xPosition, yPosition + sprite.getFitHeight(),
+                sprite.getFitWidth(), sprite.getFitHeight());
+        if (collidedPlatform != null) {
+            onGround = true;
+            speedY = 0; // Ngừng rơi
+            jumpCount = 0; // Reset số lần nhảy
 
-            // Reset hoạt ảnh nhảy
-            jumpTimeline.stop();
-            frameIndex = 0;
-
-            // Quay lại trạng thái idle, đi bộ, hoặc chạy
-            if (speedX == 0) {
-                idleTimeline.play();
-            } else if (Math.abs(speedX) > 3) { // Nếu đang chạy
-                runTimeLine.play();
-            } else { // Nếu đi bộ
-                walkTimeline.play();
-            }
+            // Đặt lại vị trí nhân vật trên nền
+            yPosition = collidedPlatform.getY() - sprite.getFitHeight();
+        } else {
+            onGround = false; // Không đứng trên nền
         }
 
+        // Cập nhật vị trí của sprite
         sprite.setTranslateX(xPosition);
         sprite.setTranslateY(yPosition);
     }
+
+
 
 
 

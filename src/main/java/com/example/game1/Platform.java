@@ -33,4 +33,3 @@ class Platform {
         return sprite;
     }
 }
-
