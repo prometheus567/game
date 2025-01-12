@@ -24,12 +24,12 @@ public class Character {
     public void setSpeedY(double speedY) {
         this.speedY = speedY;
     }
-    static final double GRAVITY = 0.1; // Trọng lực
+    static final double GRAVITY = 0.4; // Trọng lực
 
 
 
     private boolean onGround = true; // Kiểm tra nhân vật có đang đứng trên đất
-    private double gravity = 0.1; // Lực kéo trọng lực
+    private double gravity = 0.4; // Lực kéo trọng lực
     private double jumpForce = -10; // Lực nhảy
 
     private Timeline moveTimeline; // Timeline để cập nhật di chuyển
@@ -37,7 +37,7 @@ public class Character {
     private Timeline jumpTimeline; // Timeline hoạt ảnh nhảy
 
     private int jumpCount = 0; // Số lần nhảy hiện tại
-    private final int maxJumpCount = 5; // Giới hạn số lần nhảy (double jump)
+    private final int maxJumpCount = 2; // Giới hạn số lần nhảy (double jump)
     private int frameIndex = 0; // Theo dõi frame hiện tại của hoạt ảnh nhảy
     private Image[] jumpFrames;
 
