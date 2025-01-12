@@ -22,6 +22,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
 
+
         // Khởi tạo các thành phần
         initializeCharacter();
         initializeMonster();
@@ -86,24 +87,24 @@ public class Main extends Application {
                 "/character/run/frame8.png"};
         String[][] attackFramesPaths = {
                 {
-                    "/character/attack/frame1.png",
-                "/character/attack/frame2.png",
-                "/character/attack/frame3.png",
-                "/character/attack/frame4.png",
-                "/character/attack/frame5.png",
-                "/character/attack/frame6.png"
-        },
-        {
-            "/character/attack/frame7.png",
-                    "/character/attack/frame8.png",
-                    "/character/attack/frame9.png",
-                    "/character/attack/frame10.png"
-        },
-        {
-            "/character/attack/frame11.png",
-                    "/character/attack/frame12.png",
-                    "/character/attack/frame13.png"
-        }
+                        "/character/attack/frame1.png",
+                        "/character/attack/frame2.png",
+                        "/character/attack/frame3.png",
+                        "/character/attack/frame4.png",
+                        "/character/attack/frame5.png",
+                        "/character/attack/frame6.png"
+                },
+                {
+                        "/character/attack/frame7.png",
+                        "/character/attack/frame8.png",
+                        "/character/attack/frame9.png",
+                        "/character/attack/frame10.png"
+                },
+                {
+                        "/character/attack/frame11.png",
+                        "/character/attack/frame12.png",
+                        "/character/attack/frame13.png"
+                }
         };
         String[] hurtFramesPaths = {     "/character/hurt/frame1.png",
                 "/character/hurt/frame2.png",
@@ -136,18 +137,23 @@ public class Main extends Application {
         // Tạo map đầu tiên
         currentMap = new Map("Map A", 10000, 900);
         // Thêm nhiều tầng hình nền
-        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 1600, 0, 1600, 1000);  // Tầng xa
-        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 3200, 0, 1600, 1000); // Tầng giữa
-        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 0, 0, 1600, 1000); // Tầng gần
-        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 4800, 0, 1600, 1000); // Tầng gần
-        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 4800, 0, 1600, 1000); // Tầng gần
+        currentMap.addBackground(getClass().getResource("/map/nen.jpg").toExternalForm(), 0, 0, 1600, 800);  // Tầng xa
+        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 1600, 0, 1600, 800); // Tầng giữa
+        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 3200, 0, 1600, 800); // Tầng gần
+        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 4800, 0, 1600, 800); // Tầng gần
+        currentMap.addBackground(getClass().getResource("/map/Background.png").toExternalForm(), 6400, 0, 1600, 800);
+        currentMap.addBackground(getClass().getResource("/map/datt.png").toExternalForm(), 0, 632, 6600, 400);
         // Khởi tạo và thêm nền tảng
-        platform = new Platform(getClass().getResource("/map/dat.png").toExternalForm(), 0, 600, 1600, 100);
+        platform = new Platform(getClass().getResource("/map/dat.png").toExternalForm(), 0, 800, 6500, 32);
+
         currentMap.addPlatform(platform); // Gán platform chính vào biến toàn cục
 
         // Thêm nền tảng khác
-        currentMap.addPlatform(new Platform(getClass().getResource("/map/dat2.jpg").toExternalForm(), 800, 400, 300, 50));
-
+        currentMap.addPlatform(new Platform(getClass().getResource("/map/dat.png").toExternalForm(), 800, 400, 300, 50));
+        currentMap.addPlatform(new Platform(getClass().getResource("/map/dat.png").toExternalForm(), 1600, 400, 300, 50));
+        currentMap.addPlatform(new Platform(getClass().getResource("/map/dat.png").toExternalForm(), 3200, 400, 300, 50));
+        currentMap.addPlatform(new Platform(getClass().getResource("/map/dat.png").toExternalForm(), 4800, 400, 300, 50));
+        currentMap.addPlatform(new Platform(getClass().getResource("/map/dat.png").toExternalForm(), 6000, 400, 300, 50));
         // Thêm nhân vật và quái vật vào map
         currentMap.getRoot().getChildren().add(character.getSprite());
         currentMap.getRoot().getChildren().add(monster.getSprite());
@@ -228,19 +234,29 @@ public class Main extends Application {
 
         // Cập nhật vị trí nhân vật theo vận tốc Y
         character.setY(character.getY() + character.getSpeedY());
+
     }
 
     private boolean isOnPlatform() {
         for (Platform platform : currentMap.getPlatforms()) {
-            if (character.getY() + character.getHeight() <= platform.getY() &&
-                    character.getY() + character.getHeight() >= platform.getY() - 5 && // Tăng độ chính xác kiểm tra
-                    character.getX() + character.getWidth() > platform.getX() &&
-                    character.getX() < platform.getX() + platform.getWidth()) {
+            // Lấy tọa độ của nền
+            int platformTop = (int) platform.getY();
+            int platformLeft = (int) platform.getX();
+            int platformRight = (int) (platform.getX() + platform.getWidth());
+
+            // Kiểm tra va chạm với cạnh trên của nền
+            if (character.getY() + character.getHeight() >= platformTop - 5 && // Cho phép sai số để kiểm tra chính xác
+                    character.getY() + character.getHeight() <= platformTop + 5 &&
+                    character.getX() + character.getWidth() > platformLeft &&
+                    character.getX() < platformRight) {
+                // Giữ nhân vật đứng trên nền
+                character.setY(platformTop - character.getHeight());
                 return true;
             }
         }
         return false;
     }
+
 
 
 
