@@ -2,12 +2,9 @@ package com.example.game1;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
-
-import java.util.List;
 
 public class Character {
     private ImageView sprite; // Hiển thị nhân vật
@@ -15,22 +12,10 @@ public class Character {
     private double speedY; // Tốc độ dọc
     private double xPosition; // Vị trí x
     private double yPosition; // Vị trí y
-    private double width;
-
-
-
-
-
-    public void setSpeedY(double speedY) {
-        this.speedY = speedY;
-    }
-    static final double GRAVITY = 0.4; // Trọng lực
-
-
 
     private boolean onGround = true; // Kiểm tra nhân vật có đang đứng trên đất
-    private double gravity = 0.4; // Lực kéo trọng lực
-    private double jumpForce = -10; // Lực nhảy
+    private double gravity = 0.1; // Lực kéo trọng lực
+    private double jumpForce = -6; // Lực nhảy
 
     private Timeline moveTimeline; // Timeline để cập nhật di chuyển
     private Timeline walkTimeline; // Timeline hoạt ảnh đi bộ
@@ -60,23 +45,16 @@ public class Character {
     private boolean isShielding = false; // Kiểm tra trạng thái shield
     private Timeline shieldTimeline; // Quản lý frame chuyển đổi giữa frame 1 và 2
     private HealthBarController healthBarController; // Tham chiếu đến HealthBarController
-    // Phương thức để thiết lập vị trí X của nhân vật
-    public void setX(double x) {
-        this.xPosition = x;
-        sprite.setTranslateX(x); // Cập nhật vị trí của sprite
-    }
 
-    // Phương thức để thiết lập vị trí Y của nhân vật
-    public void setY(double y) {
-        this.yPosition = y;
-        sprite.setTranslateY(y); // Cập nhật vị trí của sprite
-    }
+    private Image[] deadFrames; // Frames cho hoạt ảnh chết
+    private Timeline deadTimeline; // Timeline để quản lý hoạt ảnh chết
+
+    private boolean isDead = false; // Trạng thái đã chết
+    private Runnable onDeathCallback; // Hàm callback để gọi khi chết
 
     // Constructor
     public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
-                     String[] runFramesPaths, String[][] attackFramesPaths,String[] hurtFramesPaths,String[] shieldFramesPaths, double initialX, double initialY) {
-
-
+                     String[] runFramesPaths, String[][] attackFramesPaths,String[] hurtFramesPaths,String[] shieldFramesPaths,String[] deadFramesPaths, double initialX, double initialY) {
         this.sprite = new ImageView();
         this.sprite.setFitWidth(100); // Kích thước nhân vật
         this.sprite.setFitHeight(100);
@@ -86,6 +64,23 @@ public class Character {
 
         this.speedX = 0;
         this.speedY = 0;
+
+        // Khởi tạo deadFrames
+        this.deadFrames = new Image[deadFramesPaths.length];
+        for (int i = 0; i < deadFramesPaths.length; i++) {
+            this.deadFrames[i] = new Image(getClass().getResource(deadFramesPaths[i]).toExternalForm());
+        }
+
+        // Tạo deadTimeline
+        deadTimeline = new Timeline();
+        deadTimeline.setCycleCount(1);
+        for (int i = 0; i < deadFrames.length; i++) {
+            final int index = i;
+            deadTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.seconds(0.2 * i),
+                    event -> sprite.setImage(deadFrames[index]) // Hiển thị từng frame
+            ));
+        }
 
         // Khởi tạo shieldFrames
         this.shieldFrames = new Image[shieldFramesPaths.length];
@@ -252,52 +247,43 @@ public class Character {
         hurtTimeLine.playFromStart();
     }
 
-    private void moveCharacter() {
-        if (isShielding) {
-            // Nếu đang shield, nhân vật không di chuyển
-            return;
+    void moveCharacter() {
+        if (isShielding || isDead) {
+            return; // Không di chuyển nếu đang shield hoặc đã chết.
         }
 
         if (hurtTimeLine.getStatus() == Timeline.Status.RUNNING) {
-            return;
+            return; // Không di chuyển nếu đang trong trạng thái "hurt".
         }
 
         xPosition += speedX;
 
         if (!onGround) {
-            speedY += gravity; // Áp dụng trọng lực khi không đứng trên đất
-            walkTimeline.stop();
-            runTimeLine.stop();
-            idleTimeline.stop();
+            speedY += gravity; // Áp dụng trọng lực khi không đứng trên mặt đất
         }
         yPosition += speedY;
 
-        if (yPosition >= 800) { // Vị trí mặt đất
+        if (yPosition >= 500) { // Nếu chạm mặt đất
             yPosition = 500;
-            onGround = true; // Cập nhật trạng thái trên đất
+            onGround = true; // Xác nhận đã đứng trên đất
             speedY = 0;
             jumpCount = 0;
 
-            // Reset hoạt ảnh nhảy
-            jumpTimeline.stop();
-            frameIndex = 0;
-
-            // Quay lại trạng thái idle, đi bộ, hoặc chạy
-            if (speedX == 0) {
-                idleTimeline.play();
-            } else if (Math.abs(speedX) > 3) { // Nếu đang chạy
-                runTimeLine.play();
-            } else { // Nếu đi bộ
-                walkTimeline.play();
+            // Nếu chưa chết, khôi phục hoạt ảnh idle, đi bộ hoặc chạy
+            if (!isDead) {
+                if (speedX == 0) {
+                    idleTimeline.play();
+                } else if (Math.abs(speedX) > 3) { // Chạy nhanh
+                    runTimeLine.play();
+                } else { // Đi bộ
+                    walkTimeline.play();
+                }
             }
         }
 
         sprite.setTranslateX(xPosition);
         sprite.setTranslateY(yPosition);
     }
-
-
-
 
     public void jump() {
         if (isHurt || isShielding) return; // Không nhảy nếu đang bị hurt hoặc shield
@@ -327,6 +313,30 @@ public class Character {
             jumpTimeline.setOnFinished(e -> frameIndex = 0); // Reset frameIndex khi hoạt ảnh kết thúc
             jumpTimeline.playFromStart();
         }
+    }
+
+    public void triggerDeadAnimation() {
+        if (deadTimeline.getStatus() == Timeline.Status.RUNNING || isDead) {
+            return; // Nếu đã chết hoặc đang chạy animation chết, thoát
+        }
+
+        isDead = true;
+
+        // Dừng tất cả các hoạt ảnh khác
+        idleTimeline.stop();
+        walkTimeline.stop();
+        runTimeLine.stop();
+        jumpTimeline.stop();
+        hurtTimeLine.stop();
+        shieldTimeline.stop();
+
+        // Phát hoạt ảnh chết
+        deadTimeline.setOnFinished(event -> {
+            if (onDeathCallback != null) {
+                onDeathCallback.run();
+            }
+        });
+        deadTimeline.playFromStart();
     }
 
     public void shield() {
@@ -365,31 +375,25 @@ public class Character {
 
 
     public void setSpeedX(double speedX) {
-        if (isHurt) return;
+        if (isHurt || isDead) return; // Không di chuyển nếu đang bị hurt hoặc đã chết
 
+        // Gán giá trị tốc độ mới
         this.speedX = speedX;
 
-        if (speedX != 0) {
-            // Nếu đang chạy
-            if (Math.abs(speedX) > 3) {
-                walkTimeline.stop();
-                idleTimeline.stop();
-                if (runTimeLine.getStatus() != Timeline.Status.RUNNING) {
-                    runTimeLine.play();
-                }
-            } else { // Nếu đi bộ
-                runTimeLine.stop();
-                idleTimeline.stop();
-                if (walkTimeline.getStatus() != Timeline.Status.RUNNING && onGround) {
-                    walkTimeline.play();
-                }
-            }
+        // Xử lý hoạt ảnh di chuyển
+        walkTimeline.stop();
+        runTimeLine.stop();
+        idleTimeline.stop();
 
+        if (speedX != 0) {
+            if (Math.abs(speedX) > 3) {
+                speedX = (speedX > 0) ? 3 : -3;
+            } else { // Nếu đi bộ
+                walkTimeline.play();
+            }
             // Lật nhân vật nếu đi trái
             sprite.setScaleX(speedX > 0 ? 1 : -1);
         } else if (onGround) { // Đứng yên
-            walkTimeline.stop();
-            runTimeLine.stop();
             idleTimeline.play();
         }
     }
@@ -441,10 +445,6 @@ public class Character {
         comboTimeline.playFromStart();
     }
 
-    public double getHeight() {
-        return sprite.getFitHeight(); // Trả về chiều cao của sprite
-    }
-
 
     public void attack() {
         if (isHurt) return;
@@ -466,6 +466,15 @@ public class Character {
             resetComboTimer.stop();
         }
     }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
+    public void setOnDeathCallback(Runnable callback) {
+        this.onDeathCallback = callback;
+    }
+
     // Getter for xPosition
     public double getX() {
         return xPosition;
@@ -475,13 +484,7 @@ public class Character {
     public double getY() {
         return yPosition;
     }
-    public double getSpeedY() {
-        return speedY;
-    }
 
 
-    public double getWidth() {
-        return width;
-    }
 
 }
