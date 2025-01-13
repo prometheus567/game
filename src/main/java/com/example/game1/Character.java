@@ -16,19 +16,72 @@ public class Character {
     private double xPosition; // Vị trí x
     private double yPosition; // Vị trí y
     private double width;
-
-
-
-
+    private boolean onGround = false; // Biến để lưu trạng thái nhân vật có trên nền hay không
 
     public void setSpeedY(double speedY) {
         this.speedY = speedY;
     }
     static final double GRAVITY = 0.1; // Trọng lực
 
+    private String currentState = "idle";
+
+    public void updateAnimation() {
+        String newState;
+
+        if (isHurt) {
+            newState = "hurt";
+        } else if (isShielding) {
+            newState = "shield";
+        } else if (!onGround) {
+            newState = "jump";
+        } else if (Math.abs(speedX) > 3) {
+            newState = "run";
+        } else if (speedX != 0) {
+            newState = "walk";
+        } else {
+            newState = "idle"; // Chuyển sang trạng thái "idle" khi đứng yên
+        }
+
+        // Chỉ chuyển trạng thái khi trạng thái thực sự thay đổi
+        if (!newState.equals(currentState)) {
+            currentState = newState;
+            playAnimation(currentState); // Chạy hoạt ảnh tương ứng
+        }
+    }
 
 
-    private boolean onGround = true; // Kiểm tra nhân vật có đang đứng trên đất
+
+
+    private void playAnimation(String state) {
+        // Dừng tất cả hoạt ảnh trước khi bắt đầu
+        idleTimeline.stop();
+        walkTimeline.stop();
+        runTimeLine.stop();
+        jumpTimeline.stop();
+        hurtTimeLine.stop();
+
+        switch (state) {
+            case "idle":
+                idleTimeline.playFromStart();
+                break;
+            case "walk":
+                walkTimeline.playFromStart();
+                break;
+            case "run":
+                runTimeLine.playFromStart();
+                break;
+            case "jump":
+                jumpTimeline.playFromStart();
+                break;
+            case "hurt":
+                hurtTimeLine.playFromStart();
+                break;
+            case "shield":
+                // Hoạt ảnh shield
+                break;
+        }
+    }
+
     private double gravity = 0.1; // Lực kéo trọng lực
     private double jumpForce = -10; // Lực nhảy
 
@@ -37,7 +90,7 @@ public class Character {
     private Timeline jumpTimeline; // Timeline hoạt ảnh nhảy
 
     private int jumpCount = 0; // Số lần nhảy hiện tại
-    private final int maxJumpCount = 5; // Giới hạn số lần nhảy (double jump)
+    private final int maxJumpCount = 2; // Giới hạn số lần nhảy (double jump)
     private int frameIndex = 0; // Theo dõi frame hiện tại của hoạt ảnh nhảy
     private Image[] jumpFrames;
 
@@ -66,15 +119,21 @@ public class Character {
         sprite.setTranslateX(x); // Cập nhật vị trí của sprite
     }
 
+
     // Phương thức để thiết lập vị trí Y của nhân vật
     public void setY(double y) {
-        this.yPosition = y;
-        sprite.setTranslateY(y); // Cập nhật vị trí của sprite
+        if (!onGround || y < yPosition) { // Chỉ cho phép thay đổi khi đang rơi hoặc nhảy lên
+            this.yPosition = y;
+            sprite.setTranslateY(y); // Cập nhật vị trí của sprite
+        }
     }
+
 
     // Constructor
     public Character(String[] walkFramesPaths, String[] jumpFramesPaths, String[] idleFramesPaths,
                      String[] runFramesPaths, String[][] attackFramesPaths,String[] hurtFramesPaths,String[] shieldFramesPaths, double initialX, double initialY) {
+        boolean onGround = false;
+
 
 
         this.sprite = new ImageView();
@@ -112,6 +171,11 @@ public class Character {
 
         comboTimeline = new Timeline();
         comboTimeline.setCycleCount(1);
+
+        // Tạo hoạt ảnh nhảy
+        this.jumpTimeline = new Timeline();
+        this.jumpTimeline.setCycleCount(1); // Chỉ chạy một lần
+        // Giả định thêm logic để thiết lập hoạt ảnh từ `jumpFramesPaths` (nếu cần)
 
         for (int i = 0; i < attackFrames.length; i++) { // Hàng: Đòn tấn công
             for (int j = 0; j < attackFrames[i].length; j++) { // Cột: Các frame của đòn
@@ -230,8 +294,14 @@ public class Character {
             ));
         }
 
+    }
 
+    public boolean isOnGround() {
+        return onGround;
+    }
 
+    public void setOnGround(boolean onGround) {
+        this.onGround = onGround;
     }
 
     public void hurt(){
@@ -248,73 +318,72 @@ public class Character {
     }
 
     public void moveCharacter(Map currentMap) {
-        if (currentMap == null) return; // Nếu currentMap chưa được truyền, thoát
-        if (isShielding || isHurt) return; // Không di chuyển nếu đang shield hoặc bị hurt
-
         // Cập nhật vị trí ngang
         xPosition += speedX;
 
         // Áp dụng trọng lực nếu không đứng trên nền
         if (!onGround) {
-            speedY += gravity; // Trọng lực kéo xuống
+            speedY += GRAVITY; // Trọng lực kéo xuống
         }
 
         // Cập nhật vị trí dọc
         yPosition += speedY;
 
-        // Kiểm tra va chạm với nền tảng
+        // Kiểm tra va chạm với nền
         Platform collidedPlatform = currentMap.checkCollision(xPosition, yPosition + sprite.getFitHeight(),
                 sprite.getFitWidth(), sprite.getFitHeight());
-        if (collidedPlatform != null) {
-            onGround = true;
-            speedY = 0; // Ngừng rơi
-            jumpCount = 0; // Reset số lần nhảy
 
-            // Đặt lại vị trí nhân vật trên nền
-            yPosition = collidedPlatform.getY() - sprite.getFitHeight();
+        if (collidedPlatform != null && speedY >= 0) { // Chỉ xử lý khi nhân vật rơi xuống
+            onGround = true;
+            speedY = 0; // Dừng rơi
+            jumpCount = 0; // Reset số lần nhảy
+            yPosition = collidedPlatform.getY() - sprite.getFitHeight(); // Đặt lại vị trí đứng trên nền
         } else {
-            onGround = false; // Không đứng trên nền
+            onGround = false; // Không có nền bên dưới
         }
 
         // Cập nhật vị trí của sprite
         sprite.setTranslateX(xPosition);
         sprite.setTranslateY(yPosition);
+
+        // Cập nhật hoạt ảnh
+        updateAnimation();
     }
-
-
-
-
 
 
     public void jump() {
-        if (isHurt || isShielding) return; // Không nhảy nếu đang bị hurt hoặc shield
+        if (!onGround && jumpCount >= maxJumpCount) {
+            return; // Không nhảy nếu không trên nền và đã nhảy hết số lần nhảy tối đa
+        }
 
-        if (jumpCount < maxJumpCount) { // Kiểm tra số lần nhảy
-            speedY = jumpForce; // Thực hiện nhảy
-            onGround = false; // Không còn trên đất
-            jumpCount++; // Tăng số lần nhảy
+        speedY = jumpForce; // Áp dụng lực nhảy
+        onGround = false; // Đặt trạng thái không ở trên nền
+        jumpCount++; // Tăng số lần nhảy
 
-            isShielding = false; // Tắt trạng thái shield khi nhảy
-            walkTimeline.stop(); // Tạm dừng hoạt ảnh đi bộ
-
-            // Cập nhật hoạt ảnh nhảy
-            jumpTimeline.stop(); // Dừng hoạt ảnh trước đó
-            jumpTimeline = new Timeline(); // Tạo lại Timeline nhảy
-            for (int i = frameIndex; i < jumpFrames.length; i++) { // Tiếp tục từ frame hiện tại
-                final int index = i;
-                jumpTimeline.getKeyFrames().add(new KeyFrame(
-                        Duration.seconds(0.1 * (i - frameIndex)), // Tính từ frame hiện tại
-                        event -> {
-                            sprite.setImage(jumpFrames[index]);
-                            frameIndex = index + 1; // Cập nhật frame hiện tại
-                        }
-                ));
-            }
-
-            jumpTimeline.setOnFinished(e -> frameIndex = 0); // Reset frameIndex khi hoạt ảnh kết thúc
+        // Chạy hoạt ảnh nhảy nếu có
+        if (jumpTimeline != null && jumpTimeline.getStatus() != Timeline.Status.RUNNING) {
             jumpTimeline.playFromStart();
         }
     }
+
+
+    private void updateOnGroundStatus(Map currentMap) {
+        Platform collidedPlatform = currentMap.checkCollision(xPosition, yPosition + sprite.getFitHeight(),
+                sprite.getFitWidth(), sprite.getFitHeight());
+        if (collidedPlatform != null) {
+            onGround = true;
+        } else {
+            onGround = false;
+        }
+    }
+
+
+    public void resetJumpCount() {
+        jumpCount = 0; // Đặt lại số lần nhảy
+    }
+
+
+
 
     public void shield() {
         if (isShielding || !onGround) return; // Không bật shield nếu đang shield hoặc không ở trên mặt đất
