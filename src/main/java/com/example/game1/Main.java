@@ -8,31 +8,61 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+    private Map currentMap;          // Quản lý map hiện tại
+    private Character character;     // Nhân vật chính
+    private Monster monster;         // Quái vật
+    private Camera camera;           // Camera
+    private Platform platform;       // Nền
+    private HealthBarController controller;  // Controller cho thanh máu và shield
+    private GameOverEffect gameOverEffect;   // Hiệu ứng game over
 
-    private Pane root; // Pane chính
-    private Character character; // Nhân vật chính
-    private HealthBarController controller; // Controller thanh máu
-    private GameOverEffect gameOverEffect; // Hiệu ứng Game Over
-
+    @Override
     public void start(Stage primaryStage) throws Exception {
+        // Khởi tạo Map, Character, Monster và các thành phần khác
+        initializeMaps();
+        initializeCharacter();
+        initializeMonster();
+        initializeHealthBar();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/healthbar loca.fxml"));
-        root = loader.load();
+        // Thiết lập camera
+        camera = new Camera(800, 600, currentMap.getRoot());
 
-        // Truy cập controller
-        controller = loader.getController();
+        // Tạo Scene
+        Scene scene = new Scene(currentMap.getRoot(), 800, 600);
 
-        // Tạo Scene từ FXML, đặt kích thước cố định
-        Scene scene = new Scene(root, 800, 600);
+        // Thiết lập điều khiển bàn phím
+        setupKeyControls(scene);
 
-        // Tương tác với thanh shieldbar
-        controller.updateShieldBar(1.0); // Gọi một phương thức để thay đổi trạng thái shield bar
-        controller.takeShieldDamage(); // Giảm shield
+        // Hiển thị stage
+        primaryStage.setTitle("Ryoma");
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
-        // Tương tác với thanh greenbar
-        controller.takeGreenbarDamage(); // Gọi để giảm máu
-        controller.updateGreenbar(1.0); // Hồi phục đầy máu
+        // Tạo hiệu ứng game over
+        gameOverEffect = new GameOverEffect(currentMap.getRoot(), character, scene, null);
 
+        // Khởi động game loop
+        startGameLoop();
+    }
+
+    private void initializeMaps() {
+        currentMap = new Map("Lan Dau", 10000, 800);
+
+        // Thêm nhiều tầng nền
+        currentMap.addBackground(getClass().getResource("/map/nen.jpg").toExternalForm(), 0, 0, 1920, 1080);
+        currentMap.addBackground(getClass().getResource("/map/nen.jpg").toExternalForm(), 1920, 0, 1920, 1080);
+
+        // Thêm nền tảng
+        platform = new Platform(getClass().getResource("/map/co.png").toExternalForm(), 0, 800, 2000, 100);
+        currentMap.addPlatform(platform);
+        currentMap.addPlatform(new Platform(getClass().getResource("/map/dat2.jpg").toExternalForm(), 800, 400, 300, 50));
+
+        // Thêm các thành phần vào root
+        currentMap.getRoot().getChildren().add(character.getSprite());
+        currentMap.getRoot().getChildren().add(monster.getSprite());
+    }
+
+    private void initializeCharacter() {
         // Tạo đối tượng Character
         String[] deadFramesPaths = {
                 "/character/dead/frame1.png",
@@ -120,65 +150,49 @@ public class Main extends Application {
                 }
         };
 
-        character = new Character(
-                walkFramesPaths,
-                jumpFramesPaths,
-                idleFramesPaths,
-                runFramesPaths,
-                attackFramesPaths,
-                hurtFramesPaths,
-                shieldFramesPaths,
-                deadFramesPaths,
-                100,
-                500
-        );
 
-        // Thiết lập callback cho animation chết
+        character = new Character(walkFramesPaths, jumpFramesPaths, idleFramesPaths, runFramesPaths, attackFramesPaths,
+                hurtFramesPaths, shieldFramesPaths, 100, 400);
         character.setOnDeathCallback(() -> gameOverEffect.triggerGameOver());
+    }
 
-        // Thêm nhân vật vào root Pane
-        root.getChildren().add(character.getSprite());
-
-
-        // Khởi tạo game loop
-        AnimationTimer gameLoop = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                updateGame(); // Cập nhật logic game
-                checkGameOver(); // Kiểm tra điều kiện Game Over
-            }
+    private void initializeMonster() {
+        String[] walkFramesPaths = {
+                "/monster/Onre/Walk/sprite_0-ezgif.com-crop.png", "/monster/Onre/Walk/sprite_1-ezgif.com-crop.png"
         };
-        gameLoop.start();
+        String[] attackFramesPaths = {
+                "/monster/Onre/Attack/sprite_00-ezgif.com-crop.png", "/monster/Onre/Attack/sprite_01-ezgif.com-crop.png"
+        };
 
-        // Tạo hiệu ứng game over
-        gameOverEffect = new GameOverEffect(root, character, scene, gameLoop);
+        monster = new Monster(walkFramesPaths, attackFramesPaths, 300.0, 500.0);
+    }
 
+    private void initializeHealthBar() throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/healthbar loca.fxml"));
+        Pane healthBarPane = loader.load();
 
+        controller = loader.getController();
+        controller.updateShieldBar(1.0);
+        controller.updateGreenbar(1.0);
 
-        // Thiết lập và hiển thị Stage
-        primaryStage.setTitle("Ryoma");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        currentMap.getRoot().getChildren().add(healthBarPane);
+    }
 
-        // Điều khiển nhân vật bằng bàn phím
+    private void setupKeyControls(Scene scene) {
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
-                case A -> character.setSpeedX(-2);
-                case D -> character.setSpeedX(2);
-                case SPACE -> character.jump();
-                case J -> character.attack();
-                case H -> character.hurt();
-                case S -> character.shield(); // Bật shield khi nhấn phím S
-                case K -> controller.takeShieldDamage();
-                case U -> controller.takeGreenbarDamage(); // Giảm máu khi nhấn phím U
-                case R -> controller.updateGreenbar(1.0); // Hồi phục đầy máu khi nhấn phím R
+                case A -> character.setSpeedX(-2);  // Đi sang trái
+                case D -> character.setSpeedX(2);   // Đi sang phải
+                case SPACE -> character.jump();     // Nhảy
+                case J -> character.attack();       // Tấn công
+                case H -> character.hurt();         // Bị thương
+                case S -> character.shield();       // Bật shield
+                case K -> controller.takeShieldDamage();  // Giảm shield
+                case U -> controller.takeGreenbarDamage(); // Giảm máu
+                case R -> controller.updateGreenbar(1.0);  // Hồi phục đầy máu
                 case SHIFT -> {
                     if (event.isShiftDown()) {
-                        if (character.getSpeedX() > 0) {
-                            character.setSpeedX(4); // Chạy nhanh phải
-                        } else if (character.getSpeedX() < 0) {
-                            character.setSpeedX(-4); // Chạy nhanh trái
-                        }
+                        character.setSpeedX(character.getSpeedX() > 0 ? 4 : -4); // Chạy nhanh
                     }
                 }
             }
@@ -186,31 +200,39 @@ public class Main extends Application {
 
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
-                case A, D -> character.setSpeedX(0); // Dừng di chuyển khi thả phím
-                case S -> character.stopShielding(); // Dừng shield khi thả phím
-                case SHIFT -> character.setSpeedX(0); // Dừng chạy khi thả SHIFT
+                case A, D -> character.setSpeedX(0);  // Dừng lại
+                case S -> character.stopShielding(); // Dừng shield
+                case SHIFT -> character.setSpeedX(0); // Dừng chạy nhanh
             }
-
         });
+    }
 
+    private void startGameLoop() {
+        AnimationTimer gameLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                updateGame();
+            }
+        };
+        gameLoop.start();
     }
 
     private void updateGame() {
+        // Cập nhật logic nhân vật
         if (character.isDead()) {
-            return; // Ngừng cập nhật nếu nhân vật đã chết.
+            return;
         }
-        character.moveCharacter();
-    }
+        character.moveCharacter(currentMap);
 
-    private void checkGameOver() {
-        if (controller.getGreenbarHealth() <= 0) {
-            character.triggerDeadAnimation(); // Gọi animation chết (nếu cần)
-            gameOverEffect.triggerGameOver(); // Hiển thị hình ảnh Game Over
-        }
+        // Cập nhật logic quái vật
+        monster.setTarget(character.getX(), character.getY());
+        monster.move(character.getX(), character.getY());
+
+        // Cập nhật camera
+        camera.update(character.getX(), character.getY());
     }
 
     public static void main(String[] args) {
         launch(args);
     }
-
 }
