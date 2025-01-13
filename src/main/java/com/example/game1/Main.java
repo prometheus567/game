@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+
 public class Main extends Application {
     private Map currentMap;          // Quản lý map hiện tại
     private Character character;     // Nhân vật chính
@@ -150,9 +151,18 @@ public class Main extends Application {
                 }
         };
 
-
-        character = new Character(walkFramesPaths, jumpFramesPaths, idleFramesPaths, runFramesPaths, attackFramesPaths,
-                hurtFramesPaths, shieldFramesPaths, 100, 400);
+        character = new Character(
+                walkFramesPaths,
+                jumpFramesPaths,
+                idleFramesPaths,
+                runFramesPaths,
+                attackFramesPaths,
+                hurtFramesPaths,
+                shieldFramesPaths,
+                deadFramesPaths, // Thêm deadFramesPaths vào đây
+                100,             // initialX
+                400              // initialY
+        );
         character.setOnDeathCallback(() -> gameOverEffect.triggerGameOver());
     }
 

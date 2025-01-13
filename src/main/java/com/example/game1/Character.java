@@ -228,7 +228,7 @@ public class Character {
         // Timeline cập nhật di chuyển
         moveTimeline = new Timeline(new KeyFrame(
                 Duration.seconds(0.016), // 60 FPS
-                event -> moveCharacter()
+                event -> moveCharacter(null) // currentMap sẽ được truyền từ bên ngoài
         ));
         moveTimeline.setCycleCount(Timeline.INDEFINITE);
         moveTimeline.play();
@@ -247,7 +247,7 @@ public class Character {
         hurtTimeLine.playFromStart();
     }
 
-    void moveCharacter() {
+    void moveCharacter(Map currentMap) {
         if (isShielding || isDead) {
             return; // Không di chuyển nếu đang shield hoặc đã chết.
         }

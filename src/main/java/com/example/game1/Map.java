@@ -19,43 +19,69 @@ public class Map {
         this.height = height;
         this.root = new Pane();
         this.root.setPrefSize(width, height);
-        this.platforms = new ArrayList<>(); // Khởi tạo danh sách nền tảng
+        this.platforms = new ArrayList<>();
         this.backgrounds = new ArrayList<>();
     }
 
-    // Thêm nền (background) với layer cụ thể
     public void addBackground(String imagePath, double posX, double posY, double width, double height) {
         BackgroundLayer layer = new BackgroundLayer(imagePath, posX, posY, width, height);
         backgrounds.add(layer);
-        root.getChildren().add(layer.getImageView()); // Thêm vào root
+        root.getChildren().add(layer.getImageView());
     }
 
-    // Cuộn nền để tạo hiệu ứng parallax
-    public void scrollBackgrounds(double speed) {
+    public Platform checkCollision(double x, double y, double width, double height) {
+        for (Platform platform : platforms) {
+            // Lấy tọa độ của nền
+            double platformLeft = platform.getX();
+            double platformRight = platform.getX() + platform.getWidth();
+            double platformTop = platform.getY();
+
+            // Kiểm tra va chạm ngang
+            boolean collisionX = x + width > platformLeft && x < platformRight;
+
+            // Kiểm tra va chạm dọc (chỉ với sai số nhỏ khi nhân vật đứng trên nền)
+            boolean collisionY = y + height >= platformTop - 5 && y + height <= platformTop + 5;
+
+            if (collisionX && collisionY) {
+                return platform; // Trả về nền mà nhân vật va chạm
+            }
+        }
+        return null; // Không có va chạm
+    }
+
+
+    public void scrollBackgrounds(double speedX, double speedY) {
         for (int i = 0; i < backgrounds.size(); i++) {
             BackgroundLayer layer = backgrounds.get(i);
-            double parallaxSpeed = speed / (i + 1); // Tầng càng xa cuộn càng chậm
+            double parallaxSpeedX = speedX / (i + 1);
+            double parallaxSpeedY = speedY / (i + 1);
             ImageView imageView = layer.getImageView();
-            imageView.setLayoutX(imageView.getLayoutX() - parallaxSpeed);
+            imageView.setLayoutX(imageView.getLayoutX() - parallaxSpeedX);
+            imageView.setLayoutY(imageView.getLayoutY() - parallaxSpeedY);
 
-            // Lặp lại background nếu cuộn ra khỏi màn hình
             if (imageView.getLayoutX() + imageView.getFitWidth() < 0) {
                 imageView.setLayoutX(imageView.getLayoutX() + imageView.getFitWidth() * backgrounds.size());
+            }
+            if (imageView.getLayoutY() + imageView.getFitHeight() < 0) {
+                imageView.setLayoutY(imageView.getLayoutY() + imageView.getFitHeight() * backgrounds.size());
             }
         }
     }
 
-    // Thêm nền tảng (platform)
     public void addPlatform(Platform platform) {
         root.getChildren().add(platform.getSprite());
-        platforms.add(platform); // Lưu nền tảng vào danh sách
+        platforms.add(platform);
+    }
+
+    public void removePlatform(Platform platform) {
+        root.getChildren().remove(platform.getSprite());
+        platforms.remove(platform);
     }
 
     public List<Platform> getPlatforms() {
-        return platforms; // Trả về danh sách các nền tảng
+        return platforms;
     }
 
-    // Thêm đối tượng (ví dụ: cổng, chướng ngại vật)
     public void addObject(ImageView object) {
         root.getChildren().add(object);
     }
@@ -68,7 +94,6 @@ public class Map {
         return name;
     }
 
-    // Trả về danh sách background
     public List<BackgroundLayer> getBackgrounds() {
         return backgrounds;
     }
