@@ -30,11 +30,19 @@
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx</artifactId>
-            <version>1.11.0</version> <!-- Phiên bản mới nhất -->
+            <version>1.11.0</version>
         </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <!-- Maven Compiler Plugin -->
             <plugin>
@@ -51,7 +59,7 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <version>0.0.8</version> <!-- Cập nhật phiên bản -->
                 <executions>
                     <execution>
                         <id>default-cli</id>
@@ -61,7 +69,11 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>com.example.game1.Main</mainClass> <!-- Thay đổi theo class Main của dự án -->
+                    <mainClass>com.example.game1.Main</mainClass>
+                    <options>
+                        <option>--add-modules</option>
+                        <option>javafx.controls,javafx.fxml</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

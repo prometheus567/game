@@ -1,3 +1,4 @@
+/*
 package com.example.game1;
 
 import javafx.fxml.FXML;
@@ -60,6 +61,8 @@ public class LoginController {
         }
     }*/
 
+    /*
+
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -114,3 +117,4 @@ public class LoginController {
             }
         }
     }
+    */

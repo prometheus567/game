@@ -31,7 +31,7 @@ public class GameOverEffect {
         scene.setOnKeyPressed(null); // Tắt điều khiển bàn phím
 
         ImageView gameOverImage = new ImageView(
-                new Image(getClass().getResource("/deadscreen/gameover.png").toExternalForm())
+                new Image(getClass().getResource("/deadscreen/gameover.jpg").toExternalForm())
         );
         gameOverImage.setFitWidth(400);
         gameOverImage.setFitHeight(300);
