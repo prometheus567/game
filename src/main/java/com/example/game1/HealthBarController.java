@@ -22,7 +22,13 @@ public class HealthBarController {
 
     @FXML
     private ImageView shieldbar; // Thanh shield
+    //Thanh máu
+    private Rectangle greenbarClip; // Clip để cố định vùng hiển thị của thanh máu
+    private double maxGreenbarWidth; // Độ rộng tối đa của thanh máu
+    private double currentGreenbarWidth; // Độ rộng hiện tại của thanh máu
+    private double greenbarDecreaseAmount = 20; // Lượng giảm máu mỗi lần bị đánh
 
+    // Thanh shield
     private Rectangle shieldClip; // Clip để cố định vùng hiển thị của thanh shield
     private double maxShieldWidth; // Độ rộng tối đa của thanh shield
     private double currentShieldWidth; // Độ rộng hiện tại của thanh shield
@@ -33,6 +39,17 @@ public class HealthBarController {
 
     @FXML
     private void initialize() {
+
+        // Khởi tạo giá trị cho thanh máu
+        maxGreenbarWidth = greenbar.getFitWidth();
+        currentGreenbarWidth = maxGreenbarWidth;
+
+        // Khởi tạo clip cho thanh máu để giữ nguyên layout
+        greenbarClip = new Rectangle(maxGreenbarWidth, greenbar.getFitHeight());
+        greenbarClip.setX(0); // Đảm bảo bắt đầu từ góc trái
+        greenbarClip.setY(0); // Đảm bảo không lệch dọc
+        greenbar.setClip(greenbarClip); // Đặt clip để điều chỉnh vùng hiển thị
+
         // Khởi tạo giá trị cho thanh shield
         maxShieldWidth = shieldbar.getFitWidth();
         currentShieldWidth = maxShieldWidth;
@@ -59,7 +76,24 @@ public class HealthBarController {
         shieldRegenTimeline.setCycleCount(Timeline.INDEFINITE);
 
         // Cập nhật giao diện ban đầu
+        updateGreenbarUI();
         updateShieldBarUI();
+    }
+
+    private void updateGreenbarUI() {
+        // Điều chỉnh clip theo chiều ngang để giảm từ trái qua phải
+        greenbarClip.setWidth(currentGreenbarWidth); // Cập nhật độ rộng clip
+        greenbarClip.setX(0); // Đảm bảo vùng clip luôn bắt đầu từ góc trái
+    }
+
+    public void takeGreenbarDamage() {
+        if (currentGreenbarWidth > 0) {
+            currentGreenbarWidth -= greenbarDecreaseAmount; // Giảm máu
+            if (currentGreenbarWidth < 0) {
+                currentGreenbarWidth = 0; // Không âm
+            }
+            updateGreenbarUI(); // Cập nhật giao diện
+        }
     }
 
     public void takeShieldDamage() {
@@ -96,13 +130,24 @@ public class HealthBarController {
     private void updateShieldBarUI() {
         // Điều chỉnh clip theo chiều ngang để giảm từ phải sang trái
         shieldClip.setWidth(currentShieldWidth); // Cập nhật độ rộng clip
-        shieldClip.setX(maxShieldWidth - currentShieldWidth); // Dịch clip sang phải để giảm từ phải qua
+        shieldClip.setX(0); // Dịch clip sang phải để giảm từ phải qua
     }
 
     public void updateShieldBar(double scale) {
         // Cập nhật thanh shield theo tỷ lệ (scale: 0.0 - 1.0)
         currentShieldWidth = maxShieldWidth * scale;
         updateShieldBarUI();
+    }
+
+    public void updateGreenbar(double scale) {
+        // Cập nhật thanh máu theo tỷ lệ (scale: 0.0 - 1.0)
+        currentGreenbarWidth = maxGreenbarWidth * scale;
+        updateGreenbarUI();
+    }
+
+    public double getGreenbarHealth() {
+        // Tính tỷ lệ phần trăm máu hiện tại
+        return currentGreenbarWidth / maxGreenbarWidth;
     }
 
 }
